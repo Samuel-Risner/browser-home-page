@@ -1,0 +1,27 @@
+{
+  "name": "browser-home-page",
+  "version": "1.0.0",
+  "description": "Small app to build a nice browser home page",
+  "scripts": {
+    "build": "npx tsc --project tsconfig.json",
+    "tsw": "npx tsc --project tsconfig.json --watch",
+    "twcssw": "npx @tailwindcss/cli -i src/input.css -o dist/output.css --watch",
+    "twcssb": "npx @tailwindcss/cli -i src/input.css -o dist/output.css --minify",
+    "server": "python3 -m http.server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Samuel-Risner/browser-home-page.git"
+  },
+  "author": "Samuel Risner",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Samuel-Risner/browser-home-page/issues"
+  },
+  "homepage": "https://github.com/Samuel-Risner/browser-home-page#readme",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.15",
+    "tailwindcss": "^4.1.15",
+    "typescript": "^5.9.3"
+  }
+}
