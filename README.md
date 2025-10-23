@@ -4,12 +4,6 @@ Small app to build a nice browser home page
 
 # How to edit
 
-There are two ways, either editing the TypeScript or the JavaScript file
-
-Editing the JavaScript file is easier but the TypeScript IntelliSense won't work
-
-Editing the TypeScript file provides IntelliSense but afterwards will need rebuilding
-
 ## Editing the JavaScript file
 
 Pro | Con
