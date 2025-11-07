@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Small app to build a nice browser home page",
   "scripts": {
-    "build": "npx tsc --project tsconfig.json",
+    "tsb": "npx tsc --project tsconfig.json",
     "tsw": "npx tsc --project tsconfig.json --watch",
     "twcssw": "npx @tailwindcss/cli -i src/input.css -o dist/output.css --watch",
     "twcssb": "npx @tailwindcss/cli -i src/input.css -o dist/output.css --minify",

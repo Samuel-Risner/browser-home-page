@@ -1,124 +1,172 @@
-const DEFAULT_HASH = "#Home";
-const PAGES = {
-    "#Home": {
+const ROOT = document.getElementById("root");
+const DEFAULT_HASH = "home";
+const PAGE_ELEMENTS = {};
+const NAVBAR_BTN_ELEMENTS = {};
+const EDIT_ELEMENTS = [];
+const INPUT_MENU_ROW = document.createElement("div");
+const INPUT_MENU_TILE = document.createElement("div");
+let DATA = {
+    "home": {
         archive: false,
         rows: []
     },
 };
-const ROOT_ELEMENT = document.getElementById("root");
-const PAGE_HTMLElements = {};
-let lastHash = DEFAULT_HASH;
-let currentHash = DEFAULT_HASH;
-function tw(tailwindCSS) { return tailwindCSS; }
-function loadCurrentHash() {
-    currentHash = window.location.hash;
-    if (currentHash === "") {
-        currentHash = DEFAULT_HASH;
-        window.location.hash = DEFAULT_HASH;
+let currentPage = DEFAULT_HASH;
+let addRowData = "";
+let addTileData = { pageKey: "", rowName: "" };
+const tw = (tailwindCSS) => { return tailwindCSS; };
+function encodeBase64Url(s) {
+    return btoa(s)
+        .replaceAll("+", "-")
+        .replaceAll("/", "_");
+}
+function decodeBase64Url(b64url) {
+    return atob(b64url
+        .replaceAll("-", "+")
+        .replaceAll("_", "/"));
+}
+function loadData() {
+    const s = window.location.search;
+    if (s !== "") {
+        const d = JSON.parse(decodeBase64Url(s.substring(1, s.length)));
+        DATA = d;
     }
-    if (PAGES[currentHash] === undefined) {
-        currentHash = DEFAULT_HASH;
-        window.location.hash = DEFAULT_HASH;
+    const h = window.location.hash.slice(1);
+    if (DATA[h] === undefined) {
+        currentPage = DEFAULT_HASH;
+    }
+    else {
+        currentPage = h;
     }
 }
-function createNavBar() {
-    const navbar = document.createElement("div");
-    ROOT_ELEMENT.appendChild(navbar);
-    navbar.className = tw("bg-cyan-700 p-2 pb-0");
-    const archiveNavbar = document.createElement("div");
-    ROOT_ELEMENT.appendChild(archiveNavbar);
-    archiveNavbar.className = navbar.className;
-    let showArchiveNavbar = false;
-    archiveNavbar.hidden = !showArchiveNavbar;
-    const buttonClassName = tw("bg-cyan-700 px-2 pt-1 pb-3 mr-0.5 hover:bg-cyan-800 hover:backdrop-opacity-65 disabled:bg-cyan-900");
-    const showArchiveNavbarButton = document.createElement("button");
-    showArchiveNavbarButton.textContent = "<>";
-    showArchiveNavbarButton.className = tw(`${buttonClassName} float-right`);
-    showArchiveNavbarButton.onclick = () => {
-        archiveNavbar.hidden = showArchiveNavbar;
-        showArchiveNavbar = !showArchiveNavbar;
-    };
-    let disabledButton = showArchiveNavbarButton;
-    for (let key in PAGES) {
-        const button = document.createElement("button");
-        button.textContent = key.slice(1);
-        button.className = buttonClassName;
-        if (key === currentHash) {
-            disabledButton = button;
-            button.disabled = true;
-        }
-        button.onclick = () => {
-            window.location.hash = key;
-            disabledButton.disabled = false;
-            button.disabled = true;
-            disabledButton = button;
+function updateUrl() {
+    window.location.hash = currentPage;
+    window.location.search = encodeBase64Url(JSON.stringify(DATA));
+}
+function createNavbar() {
+    const navEl = document.createElement("div");
+    ROOT.appendChild(navEl);
+    navEl.className = tw("bg-cyan-500 p-2 pb-0");
+    for (let pageKey in DATA) {
+        const selectBtn = document.createElement("button");
+        navEl.appendChild(selectBtn);
+        NAVBAR_BTN_ELEMENTS[pageKey] = selectBtn;
+        selectBtn.className = tw("bg-cyan-700 px-2 pt-1 pb-3 mr-0.5 hover:bg-cyan-800 hover:backdrop-opacity-65 disabled:bg-cyan-900");
+        selectBtn.textContent = pageKey;
+        selectBtn.disabled = pageKey === currentPage;
+        selectBtn.onclick = () => {
+            PAGE_ELEMENTS[currentPage].hidden = true;
+            NAVBAR_BTN_ELEMENTS[currentPage].disabled = false;
+            currentPage = pageKey;
+            PAGE_ELEMENTS[currentPage].hidden = false;
+            NAVBAR_BTN_ELEMENTS[currentPage].disabled = true;
         };
-        (PAGES[key]["archive"]) ? archiveNavbar.appendChild(button) : navbar.appendChild(button);
     }
-    if (archiveNavbar.children.length !== 0)
-        navbar.appendChild(showArchiveNavbarButton);
 }
-function initializePages() {
-    for (let pageKey in PAGES) {
-        const page = document.createElement("div");
-        page.hidden = true;
-        ROOT_ELEMENT.appendChild(page);
-        PAGE_HTMLElements[pageKey] = page;
-        page.className = tw("flex flex-col p-4 gap-2");
-        PAGES[pageKey].rows.forEach((row) => {
-            const rowContainer = document.createElement("div");
-            PAGE_HTMLElements[pageKey].appendChild(rowContainer);
-            rowContainer.className = tw("flex gap-2");
-            const rowNameDisplay = document.createElement("div");
-            rowContainer.appendChild(rowNameDisplay);
-            rowNameDisplay.textContent = row.name;
-            rowNameDisplay.className = tw("size-24 bg-gray-400 flex items-center justify-center");
-            row.tiles.forEach(tile => {
-                let link = document.createElement("a");
-                if (tile.copy) {
-                    link = document.createElement("button");
-                    link.onclick = () => {
-                        navigator.clipboard.writeText(tile.link);
-                    };
-                }
-                else {
-                    link.href = tile.link;
-                    link.target = "_blank";
-                }
-                link.className = tw("w-24 h-32");
-                rowContainer.appendChild(link);
-                const iconContainer = document.createElement("div");
-                link.appendChild(iconContainer);
-                iconContainer.className = tw("size-24 flex items-center justify-center p-2 bg-gray-200");
-                const icon = document.createElement("img");
-                iconContainer.appendChild(icon);
-                icon.src = tile.icon;
-                icon.className = tw("object-contain max-w-20 max-h-20");
-                const description = document.createElement("div");
-                link.appendChild(description);
-                description.textContent = tile.name;
-                description.className = tw("text-sm flex items-center justify-center h-8 w-full");
+function initInputMenuRow() {
+    const inputEl = document.createElement("input");
+    INPUT_MENU_ROW.appendChild(inputEl);
+    inputEl.placeholder = "row name";
+    const btn = document.createElement("button");
+    INPUT_MENU_ROW.appendChild(btn);
+    btn.textContent = "<>";
+    btn.onclick = () => {
+        DATA[addRowData].rows.push({ name: inputEl.value, tiles: [] });
+        updateUrl();
+    };
+}
+function initInputMenuTiles() {
+    const inputNameEl = document.createElement("input");
+    INPUT_MENU_TILE.appendChild(inputNameEl);
+    inputNameEl.placeholder = "tile name";
+    const inputLinkEl = document.createElement("input");
+    INPUT_MENU_TILE.appendChild(inputLinkEl);
+    inputLinkEl.placeholder = "link";
+    const btn = document.createElement("button");
+    INPUT_MENU_TILE.appendChild(btn);
+    btn.textContent = "<>";
+    btn.onclick = () => {
+        for (let i = 0; i < DATA[addTileData.pageKey].rows.length; i++) {
+            const r = DATA[addTileData.pageKey].rows.at(i);
+            if (r.name !== addTileData.rowName)
+                continue;
+            r.tiles.push({ name: inputNameEl.value, icon: "icon", link: inputLinkEl.value });
+            updateUrl();
+            break;
+        }
+    };
+}
+function initInputMenus() {
+    ROOT.appendChild(INPUT_MENU_ROW);
+    INPUT_MENU_ROW.hidden = true;
+    initInputMenuRow();
+    ROOT.appendChild(INPUT_MENU_TILE);
+    INPUT_MENU_TILE.hidden = true;
+    initInputMenuTiles();
+}
+function addTile(rowEl, tile) {
+    const linkEl = document.createElement("a");
+    rowEl.appendChild(linkEl);
+    linkEl.className = tw("size-24 bg-gray-400 flex items-center justify-center");
+    linkEl.target = "_blank";
+    const iconContainerEL = document.createElement("div");
+    linkEl.appendChild(iconContainerEL);
+    iconContainerEL.className = tw("size-24 flex items-center justify-center p-2 bg-gray-200");
+    const iconEl = document.createElement("img");
+    iconContainerEL.appendChild(iconEl);
+    iconEl.src = tile.link;
+    iconEl.className = tw("object-contain max-w-20 max-h-20");
+    const descriptionEl = document.createElement("div");
+    linkEl.appendChild(descriptionEl);
+    descriptionEl.textContent = tile.name;
+    descriptionEl.className = tw("text-sm flex items-center justify-center h-8 w-full");
+}
+function createAddRowBtn(pageEl, pageKey) {
+    const btn = document.createElement("btn");
+    EDIT_ELEMENTS.push(btn);
+    pageEl.appendChild(btn);
+    btn.textContent = "+";
+    btn.className = tw("size-24 bg-gray-400 flex items-center justify-center");
+    btn.onclick = () => {
+        INPUT_MENU_ROW.hidden = false;
+        addRowData = pageKey;
+    };
+}
+function createAddTileBtn(rowEl, pageKey, rowName) {
+    const btn = document.createElement("btn");
+    EDIT_ELEMENTS.push(btn);
+    rowEl.appendChild(btn);
+    btn.textContent = "+";
+    btn.className = tw("size-24 bg-gray-400 flex items-center justify-center");
+    btn.onclick = () => {
+        INPUT_MENU_TILE.hidden = false;
+        addTileData = { pageKey: pageKey, rowName: rowName };
+    };
+}
+function createPages() {
+    for (let pageKey in DATA) {
+        const pageEl = document.createElement("div");
+        ROOT.appendChild(pageEl);
+        PAGE_ELEMENTS[pageKey] = pageEl;
+        pageEl.hidden = currentPage !== pageKey;
+        pageEl.className = tw("flex flex-col p-4 gap-2");
+        DATA[pageKey].rows.forEach((row) => {
+            const rowEl = document.createElement("div");
+            pageEl.appendChild(rowEl);
+            rowEl.className = tw("flex gap-2");
+            const rowNameEl = document.createElement("div");
+            rowEl.appendChild(rowNameEl);
+            rowNameEl.textContent = row.name;
+            rowNameEl.className = tw("size-24 bg-gray-400 flex items-center justify-center");
+            row.tiles.forEach((tile) => {
+                addTile(rowEl, tile);
             });
+            createAddTileBtn(rowEl, pageKey, row.name);
         });
+        createAddRowBtn(pageEl, pageKey);
     }
 }
-function changePage() {
-    PAGE_HTMLElements[lastHash].hidden = true;
-    loadCurrentHash();
-    const page = PAGES[currentHash];
-    lastHash = currentHash;
-    document.title = currentHash;
-    PAGE_HTMLElements[currentHash].hidden = false;
-}
-// For debuging
-function checkUserInput() {
-    // if "DEFAULT_HASH" is valid
-    if (PAGES[DEFAULT_HASH] === undefined)
-        console.warn(`The value for <DEFAULT_HASH> is invalid it should be one of the values from <PAGES> and not ${DEFAULT_HASH}`);
-}
-// checkUserInput();
-loadCurrentHash();
-createNavBar();
-initializePages();
-changePage();
-addEventListener("hashchange", () => { changePage(); });
+loadData();
+createNavbar();
+initInputMenus();
+createPages();

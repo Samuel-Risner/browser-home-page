@@ -42,6 +42,5 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "moduleResolution": "bundler"
-  },
-  "exclude": ["personal/"]
+  }
 }
