@@ -27,16 +27,14 @@ function decodeBase64Url(b64url) {
 }
 function loadData() {
     const s = window.location.search;
-    if (s !== "") {
-        const d = JSON.parse(decodeBase64Url(s.substring(1, s.length)));
-        DATA = d;
-    }
-    const h = window.location.hash.slice(1);
+    if (s !== "")
+        DATA = JSON.parse(decodeBase64Url(s.slice(1)));
+    const h = window.location.hash;
     if (DATA[h] === undefined) {
         currentPage = DEFAULT_HASH;
     }
     else {
-        currentPage = h;
+        currentPage = h.slice(1);
     }
 }
 function updateUrl() {
@@ -69,7 +67,7 @@ function initInputMenuRow() {
     inputEl.placeholder = "row name";
     const btn = document.createElement("button");
     INPUT_MENU_ROW.appendChild(btn);
-    btn.textContent = "<>";
+    btn.textContent = "+";
     btn.onclick = () => {
         DATA[addRowData].rows.push({ name: inputEl.value, tiles: [] });
         updateUrl();
@@ -82,15 +80,37 @@ function initInputMenuTiles() {
     const inputLinkEl = document.createElement("input");
     INPUT_MENU_TILE.appendChild(inputLinkEl);
     inputLinkEl.placeholder = "link";
+    const inputFileEl = document.createElement("input");
+    INPUT_MENU_TILE.appendChild(inputFileEl);
+    inputFileEl.type = "file";
+    inputFileEl.accept = "image/*";
     const btn = document.createElement("button");
     INPUT_MENU_TILE.appendChild(btn);
-    btn.textContent = "<>";
-    btn.onclick = () => {
+    btn.textContent = "+";
+    btn.onclick = async () => {
         for (let i = 0; i < DATA[addTileData.pageKey].rows.length; i++) {
             const r = DATA[addTileData.pageKey].rows.at(i);
             if (r.name !== addTileData.rowName)
                 continue;
-            r.tiles.push({ name: inputNameEl.value, icon: "icon", link: inputLinkEl.value });
+            let icon = "";
+            function fileToBase64(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => resolve((reader.result));
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            }
+            const fileList = inputFileEl.files;
+            if (fileList !== null) {
+                const f = fileList[0];
+                if (f !== undefined) {
+                    const reader = new FileReader();
+                    icon = await fileToBase64(f);
+                    console.log(icon);
+                }
+            }
+            r.tiles.push({ name: "inputNameEl.value", icon: "icon", link: "inputLinkEl.value" });
             updateUrl();
             break;
         }
@@ -107,14 +127,15 @@ function initInputMenus() {
 function addTile(rowEl, tile) {
     const linkEl = document.createElement("a");
     rowEl.appendChild(linkEl);
-    linkEl.className = tw("size-24 bg-gray-400 flex items-center justify-center");
+    linkEl.className = tw("size-24 bg-gray-400 flex flex-col items-center justify-center");
     linkEl.target = "_blank";
+    linkEl.href = tile.link;
     const iconContainerEL = document.createElement("div");
     linkEl.appendChild(iconContainerEL);
     iconContainerEL.className = tw("size-24 flex items-center justify-center p-2 bg-gray-200");
     const iconEl = document.createElement("img");
     iconContainerEL.appendChild(iconEl);
-    iconEl.src = tile.link;
+    iconEl.src = tile.icon;
     iconEl.className = tw("object-contain max-w-20 max-h-20");
     const descriptionEl = document.createElement("div");
     linkEl.appendChild(descriptionEl);

@@ -7,7 +7,7 @@
     "tsw": "npx tsc --project tsconfig.json --watch",
     "twcssw": "npx @tailwindcss/cli -i src/input.css -o dist/output.css --watch",
     "twcssb": "npx @tailwindcss/cli -i src/input.css -o dist/output.css --minify",
-    "server": "python3 -m http.server"
+    "server": "cd dist && python3 -m http.server"
   },
   "repository": {
     "type": "git",
