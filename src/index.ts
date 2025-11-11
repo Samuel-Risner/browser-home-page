@@ -73,79 +73,87 @@ function createNavbar() {
     }
 }
 
-function initInputMenuRow() {
-    const inputEl = document.createElement("input");
-    INPUT_MENU_ROW.appendChild(inputEl);
-    inputEl.placeholder = "row name";
-
-    const btn = document.createElement("button");
-    INPUT_MENU_ROW.appendChild(btn);
-    btn.textContent = "+";
-
-    btn.onclick = () => {
-        (DATA[addRowData] as T_PAGE).rows.push({ name: inputEl.value, tiles: [] });
-        updateUrl();
-    }
-}
-
-function initInputMenuTiles() {
-    const inputNameEl = document.createElement("input");
-    INPUT_MENU_TILE.appendChild(inputNameEl);
-    inputNameEl.placeholder = "tile name";
-
-    const inputLinkEl = document.createElement("input");
-    INPUT_MENU_TILE.appendChild(inputLinkEl);
-    inputLinkEl.placeholder = "link";
-
-    const inputFileEl = document.createElement("input");
-    INPUT_MENU_TILE.appendChild(inputFileEl);
-    inputFileEl.type = "file";
-    inputFileEl.accept = "image/*";
-
-    const btn = document.createElement("button");
-    INPUT_MENU_TILE.appendChild(btn);
-    btn.textContent = "+";
-    
-    btn.onclick = async () => {
-        for (let i = 0; i < (DATA[addTileData.pageKey] as T_PAGE).rows.length; i++) {
-            const r = ((DATA[addTileData.pageKey] as T_PAGE).rows.at(i) as T_ROW);
-            if (r.name !== addTileData.rowName) continue;
-
-            let icon = "";
-
-            function fileToBase64(file: File): Promise<string> {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve((reader.result) as string);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            const fileList = inputFileEl.files;
-            if (fileList !== null) {
-                const f = fileList[0];
-                if (f !== undefined) {
-                    const reader = new FileReader();
-                    icon = await fileToBase64(f);
-                    console.log(icon);
-                }
-            }
-
-            r.tiles.push({name: "inputNameEl.value", icon: "icon", link: "inputLinkEl.value" });
-            updateUrl();
-            break;
-        }        
-    }
-}
-
 function initInputMenus() {
+    const inputStyle = tw("border-2 border-gray-300 px-2");
+
+    function initInputMenuRow() {
+        const inputEl = document.createElement("input");
+        INPUT_MENU_ROW.appendChild(inputEl);
+        inputEl.placeholder = "row name";
+        inputEl.className = inputStyle;
+    
+        const btn = document.createElement("button");
+        INPUT_MENU_ROW.appendChild(btn);
+        btn.textContent = "+";
+    
+        btn.onclick = () => {
+            (DATA[addRowData] as T_PAGE).rows.push({ name: inputEl.value, tiles: [] });
+            updateUrl();
+        }
+    }
+    
+    function initInputMenuTiles() {
+        const inputNameEl = document.createElement("input");
+        INPUT_MENU_TILE.appendChild(inputNameEl);
+        inputNameEl.placeholder = "tile name";
+        inputNameEl.className = inputStyle;
+    
+        const inputLinkEl = document.createElement("input");
+        INPUT_MENU_TILE.appendChild(inputLinkEl);
+        inputLinkEl.placeholder = "link";
+        inputLinkEl.className = inputStyle;
+    
+        const inputFileEl = document.createElement("input");
+        INPUT_MENU_TILE.appendChild(inputFileEl);
+        inputFileEl.type = "file";
+        inputFileEl.accept = "image/*";
+        inputFileEl.className = inputStyle;
+    
+        const btn = document.createElement("button");
+        INPUT_MENU_TILE.appendChild(btn);
+        btn.textContent = "+";
+        
+        btn.onclick = async () => {
+            for (let i = 0; i < (DATA[addTileData.pageKey] as T_PAGE).rows.length; i++) {
+                const r = ((DATA[addTileData.pageKey] as T_PAGE).rows.at(i) as T_ROW);
+                if (r.name !== addTileData.rowName) continue;
+    
+                let icon = "";
+    
+                function fileToBase64(file: File): Promise<string> {
+                    return new Promise((resolve, reject) => {
+                        const reader = new FileReader();
+                        reader.onload = () => resolve((reader.result) as string);
+                        reader.onerror = reject;
+                        reader.readAsDataURL(file);
+                    });
+                }
+    
+                const fileList = inputFileEl.files;
+                if (fileList !== null) {
+                    const f = fileList[0];
+                    if (f !== undefined) {
+                        const reader = new FileReader();
+                        icon = await fileToBase64(f);
+                        console.log(icon);
+                    }
+                }
+    
+                r.tiles.push({name: inputNameEl.value, icon: icon, link: inputLinkEl.value });
+                updateUrl();
+                break;
+            }        
+        }
+    }
+
     ROOT.appendChild(INPUT_MENU_ROW);
     INPUT_MENU_ROW.hidden = true;
+    INPUT_MENU_ROW.className = tw("fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-400 grid grid-cols-1 p-4 gap-4");
     initInputMenuRow();
 
     ROOT.appendChild(INPUT_MENU_TILE);
     INPUT_MENU_TILE.hidden = true;
+    INPUT_MENU_TILE.className = INPUT_MENU_ROW.className;
     initInputMenuTiles();
 }
 
@@ -179,6 +187,7 @@ function createAddRowBtn(pageEl: HTMLDivElement, pageKey: string) {
     btn.className = tw("size-24 bg-gray-400 flex items-center justify-center");
 
     btn.onclick = () => {
+        console.log("foo");
         INPUT_MENU_ROW.hidden = false;
         addRowData = pageKey;
     }
