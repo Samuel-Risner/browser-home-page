@@ -1,34 +1,62 @@
 const ROOT = document.getElementById("root");
-const DEFAULT_HASH = "home";
 const PAGE_ELEMENTS = {};
 const NAVBAR_BTN_ELEMENTS = {};
 const EDIT_ELEMENTS = [];
 const INPUT_MENU_ROW = document.createElement("div");
 const INPUT_MENU_TILE = document.createElement("div");
+const LOCAL_STORADGE_KEYS = {
+    defaultPage: ":defaultPage",
+    data: ":data",
+    imgKeysCount: ":imgKeyCount",
+    savedImgKeys: ":savedImgKeys",
+    imgDataPrefix: ":imgData:",
+};
 let DATA = {
     "home": {
         archive: false,
         rows: []
     },
 };
+let DEFAULT_HASH = "home";
 let currentPage = DEFAULT_HASH;
 let addRowData = "";
 let addTileData = { pageKey: "", rowName: "" };
+let imgKeyCount = 0;
+let savedImgKeys = [0];
+const imgData = new Map();
+imgData.set(0, "");
 const tw = (tailwindCSS) => { return tailwindCSS; };
-function encodeBase64Url(s) {
-    return btoa(s)
-        .replaceAll("+", "-")
-        .replaceAll("/", "_");
-}
-function decodeBase64Url(b64url) {
-    return atob(b64url
-        .replaceAll("-", "+")
-        .replaceAll("_", "/"));
-}
 function loadData() {
-    const s = window.location.search;
-    if (s !== "")
-        DATA = JSON.parse(decodeBase64Url(s.slice(1)));
+    const d = localStorage.getItem(LOCAL_STORADGE_KEYS.data);
+    if (d === null) {
+        localStorage.setItem(LOCAL_STORADGE_KEYS.data, JSON.stringify(DATA));
+    }
+    else {
+        DATA = JSON.parse(d);
+    }
+    const dh = localStorage.getItem(LOCAL_STORADGE_KEYS.defaultPage);
+    if (dh !== null)
+        DEFAULT_HASH = dh;
+    const ikc = localStorage.getItem(LOCAL_STORADGE_KEYS.imgKeysCount);
+    if (ikc === null) {
+        localStorage.setItem(LOCAL_STORADGE_KEYS.imgKeysCount, JSON.stringify(imgKeyCount));
+    }
+    else {
+        imgKeyCount = JSON.parse(ikc);
+    }
+    const sik = localStorage.getItem(LOCAL_STORADGE_KEYS.savedImgKeys);
+    if (sik === null) {
+        localStorage.setItem(LOCAL_STORADGE_KEYS.savedImgKeys, JSON.stringify(savedImgKeys));
+    }
+    else {
+        savedImgKeys = JSON.parse(sik);
+    }
+    savedImgKeys.forEach((key) => {
+        const d = localStorage.getItem(`${LOCAL_STORADGE_KEYS.imgDataPrefix}${key}`);
+        if (d === null)
+            return;
+        imgData.set(key, d);
+    });
     const h = window.location.hash;
     if (DATA[h] === undefined) {
         currentPage = DEFAULT_HASH;
@@ -37,9 +65,20 @@ function loadData() {
         currentPage = h.slice(1);
     }
 }
-function updateUrl() {
-    window.location.hash = currentPage;
-    window.location.search = encodeBase64Url(JSON.stringify(DATA));
+function saveDataAndReload() {
+    localStorage.setItem(LOCAL_STORADGE_KEYS.data, JSON.stringify(DATA));
+    localStorage.setItem(LOCAL_STORADGE_KEYS.defaultPage, DEFAULT_HASH);
+    localStorage.setItem(LOCAL_STORADGE_KEYS.imgKeysCount, JSON.stringify(imgKeyCount));
+    localStorage.setItem(LOCAL_STORADGE_KEYS.savedImgKeys, JSON.stringify(savedImgKeys));
+    window.location.href = window.location.href;
+}
+function addImg(img) {
+    imgKeyCount++;
+    savedImgKeys.push(imgKeyCount);
+    imgData.set(imgKeyCount, img);
+    localStorage.setItem(`${LOCAL_STORADGE_KEYS.imgDataPrefix}${imgKeyCount}`, img);
+    localStorage.setItem(LOCAL_STORADGE_KEYS.imgKeysCount, JSON.stringify(imgKeyCount));
+    return imgKeyCount;
 }
 function createNavbar() {
     const navEl = document.createElement("div");
@@ -73,7 +112,7 @@ function initInputMenus() {
         btn.textContent = "+";
         btn.onclick = () => {
             DATA[addRowData].rows.push({ name: inputEl.value, tiles: [] });
-            updateUrl();
+            saveDataAndReload();
         };
     }
     function initInputMenuTiles() {
@@ -116,8 +155,11 @@ function initInputMenus() {
                         console.log(icon);
                     }
                 }
-                r.tiles.push({ name: inputNameEl.value, icon: icon, link: inputLinkEl.value });
-                updateUrl();
+                let iconKey = 0;
+                if (icon !== "")
+                    iconKey = addImg(icon);
+                r.tiles.push({ name: inputNameEl.value, icon: iconKey, link: inputLinkEl.value });
+                saveDataAndReload();
                 break;
             }
         };
@@ -142,7 +184,8 @@ function addTile(rowEl, tile) {
     iconContainerEL.className = tw("size-24 flex items-center justify-center p-2 bg-gray-200");
     const iconEl = document.createElement("img");
     iconContainerEL.appendChild(iconEl);
-    iconEl.src = tile.icon;
+    console.log(imgData.get(tile.icon));
+    iconEl.src = imgData.get(tile.icon) || "";
     iconEl.className = tw("object-contain max-w-20 max-h-20");
     const descriptionEl = document.createElement("div");
     linkEl.appendChild(descriptionEl);

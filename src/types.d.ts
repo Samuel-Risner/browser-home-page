@@ -1,7 +1,7 @@
 export type T_TILE = {
     copy?: true,
     name: string,
-    icon: string,
+    icon: number,
     link: string,
 }
 

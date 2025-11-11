@@ -1,12 +1,19 @@
 import { T_PAGE, T_PAGES, T_ROW, T_TILE } from "./types";
 
 const ROOT = document.getElementById("root") as HTMLDivElement;
-const DEFAULT_HASH = "home";
 const PAGE_ELEMENTS: { [key: string]: HTMLDivElement } = {};
 const NAVBAR_BTN_ELEMENTS: { [key: string]: HTMLButtonElement } = {};
 const EDIT_ELEMENTS: HTMLElement[] = [];
 const INPUT_MENU_ROW = document.createElement("div");
 const INPUT_MENU_TILE = document.createElement("div");
+
+const LOCAL_STORADGE_KEYS = {
+    defaultPage: ":defaultPage",
+    data: ":data",
+    imgKeysCount: ":imgKeyCount",
+    savedImgKeys: ":savedImgKeys",
+    imgDataPrefix: ":imgData:",
+}
 
 let DATA: T_PAGES = {
     "home": {
@@ -14,28 +21,48 @@ let DATA: T_PAGES = {
         rows: []
     },
 };
+let DEFAULT_HASH = "home";
 let currentPage = DEFAULT_HASH;
 let addRowData: string = "";
 let addTileData: {pageKey: string, rowName: string } = { pageKey: "", rowName: "" };
 
+let imgKeyCount = 0;
+let savedImgKeys: number[] = [0];
+const imgData: Map<number, string> = new Map();
+imgData.set(0, "");
+
 const tw = (tailwindCSS: string) => { return tailwindCSS; }
 
-function encodeBase64Url(s: string) {
-    return btoa(s)
-        .replaceAll("+", "-")
-        .replaceAll("/", "_");
-}
-
-function decodeBase64Url(b64url: string) {
-    return atob(b64url
-        .replaceAll("-", "+")
-        .replaceAll("_", "/")
-    );
-}
-
 function loadData() {
-    const s = window.location.search;
-    if (s !== "") DATA = JSON.parse(decodeBase64Url(s.slice(1))) as T_PAGES;
+    const d = localStorage.getItem(LOCAL_STORADGE_KEYS.data);
+    if (d === null) {
+        localStorage.setItem(LOCAL_STORADGE_KEYS.data, JSON.stringify(DATA));
+    } else {
+        DATA = JSON.parse(d);
+    }
+
+    const dh = localStorage.getItem(LOCAL_STORADGE_KEYS.defaultPage);
+    if (dh !== null) DEFAULT_HASH = dh;
+
+    const ikc = localStorage.getItem(LOCAL_STORADGE_KEYS.imgKeysCount);
+    if (ikc === null) {
+        localStorage.setItem(LOCAL_STORADGE_KEYS.imgKeysCount, JSON.stringify(imgKeyCount));
+    } else {
+        imgKeyCount = JSON.parse(ikc);
+    }
+
+    const sik = localStorage.getItem(LOCAL_STORADGE_KEYS.savedImgKeys);
+    if (sik === null) {
+        localStorage.setItem(LOCAL_STORADGE_KEYS.savedImgKeys, JSON.stringify(savedImgKeys));
+    } else {
+        savedImgKeys = JSON.parse(sik);
+    }
+
+    savedImgKeys.forEach((key: number) => {
+        const d = localStorage.getItem(`${LOCAL_STORADGE_KEYS.imgDataPrefix}${key}`);
+        if (d === null) return;
+        imgData.set(key, d);
+    });
 
     const h = window.location.hash;
     if (DATA[h] === undefined) {
@@ -45,9 +72,23 @@ function loadData() {
     }
 }
 
-function updateUrl() {
-    window.location.hash = currentPage;
-    window.location.search = encodeBase64Url(JSON.stringify(DATA));
+function saveDataAndReload() {
+    localStorage.setItem(LOCAL_STORADGE_KEYS.data, JSON.stringify(DATA));
+    localStorage.setItem(LOCAL_STORADGE_KEYS.defaultPage, DEFAULT_HASH);
+    localStorage.setItem(LOCAL_STORADGE_KEYS.imgKeysCount, JSON.stringify(imgKeyCount));
+    localStorage.setItem(LOCAL_STORADGE_KEYS.savedImgKeys, JSON.stringify(savedImgKeys));
+
+    window.location.href = window.location.href;
+}
+
+function addImg(img: string): number {
+    imgKeyCount++;
+    savedImgKeys.push(imgKeyCount);
+    imgData.set(imgKeyCount, img);
+    localStorage.setItem(`${LOCAL_STORADGE_KEYS.imgDataPrefix}${imgKeyCount}`, img);
+    localStorage.setItem(LOCAL_STORADGE_KEYS.imgKeysCount, JSON.stringify(imgKeyCount));
+
+    return imgKeyCount;
 }
 
 function createNavbar() {
@@ -88,7 +129,7 @@ function initInputMenus() {
     
         btn.onclick = () => {
             (DATA[addRowData] as T_PAGE).rows.push({ name: inputEl.value, tiles: [] });
-            updateUrl();
+            saveDataAndReload();
         }
     }
     
@@ -138,9 +179,11 @@ function initInputMenus() {
                         console.log(icon);
                     }
                 }
-    
-                r.tiles.push({name: inputNameEl.value, icon: icon, link: inputLinkEl.value });
-                updateUrl();
+
+                let iconKey = 0;
+                if (icon !== "") iconKey = addImg(icon);
+                r.tiles.push({name: inputNameEl.value, icon: iconKey, link: inputLinkEl.value });
+                saveDataAndReload();
                 break;
             }        
         }
@@ -170,7 +213,8 @@ function addTile(rowEl: HTMLDivElement, tile: T_TILE) {
     
     const iconEl = document.createElement("img");
     iconContainerEL.appendChild(iconEl);
-    iconEl.src = tile.icon;
+    console.log(imgData.get(tile.icon));
+    iconEl.src = imgData.get(tile.icon) || "";
     iconEl.className = tw("object-contain max-w-20 max-h-20");
     
     const descriptionEl = document.createElement("div");
