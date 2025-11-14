@@ -56,53 +56,63 @@ function createEl<T extends keyof HTMLElementTagNameMap>(el: T, parent: HTMLElem
     return e;
 }
 
-function loadData() {
-    const d = localStorage.getItem(LOCAL_STORADGE_KEYS.data);
+function handleData(mode: "save" | "load" | "save&refresh") {
+    const parts: { LSKey: string, LSreplace: string | null, loadFn: (LSvalue: string) => void, getStrToSave: () => string}[] = [
+        {
+            LSKey: LOCAL_STORADGE_KEYS.data,
+            LSreplace: JSON.stringify([...DATA]),
+            loadFn: (localStorageValue: string) => { DATA = new Map(JSON.parse(localStorageValue)); },
+            getStrToSave: () => { return JSON.stringify([...DATA]); }
+        },
+        {
+            LSKey: LOCAL_STORADGE_KEYS.defaultPage,
+            LSreplace: null,
+            loadFn: (LSvalue) => { DEFAULT_HASH = LSvalue; },
+            getStrToSave: () => { return DEFAULT_HASH; }
+        },
+        {
+            LSKey: LOCAL_STORADGE_KEYS.imgKeysCount,
+            LSreplace: JSON.stringify(imgKeyCount),
+            loadFn: (LSvalue) => { imgKeyCount = JSON.parse(LSvalue); },
+            getStrToSave: () => { return JSON.stringify(imgKeyCount); }
+        },
+        {
+            LSKey: LOCAL_STORADGE_KEYS.savedImgKeys,
+            LSreplace: JSON.stringify(savedImgKeys),
+            loadFn: (LSValue) => { savedImgKeys = JSON.parse(LSValue); },
+            getStrToSave: () => { return JSON.stringify(savedImgKeys); }
+        }
+    ];
 
-    if (d === null) {
-        localStorage.setItem(LOCAL_STORADGE_KEYS.data, JSON.stringify([...DATA]));
-    } else {
-        DATA = new Map(JSON.parse(d));
+    if (mode === "load") {
+        parts.forEach((part) => {
+            const d = localStorage.getItem(part.LSKey);
+            if (d === null) {
+                if (part.LSreplace !== null) localStorage.setItem(part.LSKey, part.LSreplace);
+            } else {
+                part.loadFn(d);                
+            }
+        });
+
+        savedImgKeys.forEach((key: number) => {
+            const d = localStorage.getItem(`${LOCAL_STORADGE_KEYS.imgDataPrefix}${key}`);
+            if (d === null) return;
+            imgData.set(key, d);
+        });
+
+        const h = window.location.hash;
+        if (DATA.get(h) === undefined) {
+            currentPage = DEFAULT_HASH;
+        } else {
+            currentPage = h.slice(1);
+        }        
+    } else if (mode === "save" || mode === "save&refresh") {
+        parts.forEach((part) => {
+            localStorage.setItem(part.LSKey, part.getStrToSave());
+        });
+
+        if (mode === "save&refresh") window.location.href = window.location.href;
     }
-
-    const dh = localStorage.getItem(LOCAL_STORADGE_KEYS.defaultPage);
-    if (dh !== null) DEFAULT_HASH = dh;
-
-    const ikc = localStorage.getItem(LOCAL_STORADGE_KEYS.imgKeysCount);
-    if (ikc === null) {
-        localStorage.setItem(LOCAL_STORADGE_KEYS.imgKeysCount, JSON.stringify(imgKeyCount));
-    } else {
-        imgKeyCount = JSON.parse(ikc);
-    }
-
-    const sik = localStorage.getItem(LOCAL_STORADGE_KEYS.savedImgKeys);
-    if (sik === null) {
-        localStorage.setItem(LOCAL_STORADGE_KEYS.savedImgKeys, JSON.stringify(savedImgKeys));
-    } else {
-        savedImgKeys = JSON.parse(sik);
-    }
-
-    savedImgKeys.forEach((key: number) => {
-        const d = localStorage.getItem(`${LOCAL_STORADGE_KEYS.imgDataPrefix}${key}`);
-        if (d === null) return;
-        imgData.set(key, d);
-    });
-
-    const h = window.location.hash;
-    if (DATA.get(h) === undefined) {
-        currentPage = DEFAULT_HASH;
-    } else {
-        currentPage = h.slice(1);
-    }
-}
-
-function saveDataAndReload() {
-    localStorage.setItem(LOCAL_STORADGE_KEYS.data, JSON.stringify([...DATA]));
-    localStorage.setItem(LOCAL_STORADGE_KEYS.defaultPage, DEFAULT_HASH);
-    localStorage.setItem(LOCAL_STORADGE_KEYS.imgKeysCount, JSON.stringify(imgKeyCount));
-    localStorage.setItem(LOCAL_STORADGE_KEYS.savedImgKeys, JSON.stringify(savedImgKeys));
-
-    window.location.href = window.location.href;
 }
 
 function addImg(img: string): number {
@@ -193,7 +203,7 @@ function initInputMenus() {
             
             DATA = newData;
 
-            saveDataAndReload();
+            handleData("save&refresh");
         }
     }
 
@@ -209,7 +219,7 @@ function initInputMenus() {
     
         btn.onclick = () => {
             (DATA.get(INPUT_DATA.row) as T_PAGE).rows.push({ name: inputEl.value, tiles: [] });
-            saveDataAndReload();
+            handleData("save&refresh");
         }
     }
     
@@ -263,7 +273,7 @@ function initInputMenus() {
                 let iconKey = 0;
                 if (icon !== "") iconKey = addImg(icon);
                 r.tiles.push({name: inputNameEl.value, icon: iconKey, link: inputLinkEl.value });
-                saveDataAndReload();
+                handleData("save&refresh");
                 break;
             }        
         }
@@ -339,7 +349,7 @@ function createPages() {
     });
 }
 
-loadData();
+handleData("load");
 createNavbar();
 initInputMenus();
 createPages();
