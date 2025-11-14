@@ -1,11 +1,24 @@
 import { T_PAGE, T_PAGES, T_ROW, T_TILE } from "./types";
 
-const ROOT = document.getElementById("root") as HTMLDivElement;
-const PAGE_ELEMENTS: { [key: string]: HTMLDivElement } = {};
-const NAVBAR_BTN_ELEMENTS: { [key: string]: HTMLButtonElement } = {};
-const EDIT_ELEMENTS: HTMLElement[] = [];
-const INPUT_MENU_ROW = document.createElement("div");
-const INPUT_MENU_TILE = document.createElement("div");
+const HTML_ELEMENTS = {
+    ROOT: document.getElementById("root") as HTMLDivElement,
+    PAGE_ELEMENTS: {} as { [key: string]: HTMLDivElement },
+    NAVBAR_BTN_ELEMENTS: {} as { [key: string]: HTMLButtonElement },
+    EDIT_ELEMENTS: [] as HTMLElement[],
+}
+
+const INPUT_MENUS = {
+    ROW: document.createElement("div"),
+    TILE: document.createElement("div"),
+}
+
+const INPUT_DATA = {
+    row: "",
+    tile: {
+        pageKey: "",
+        rowIndex: 0
+    }
+}
 
 const LOCAL_STORADGE_KEYS = {
     defaultPage: ":defaultPage",
@@ -23,8 +36,6 @@ let DATA: T_PAGES = {
 };
 let DEFAULT_HASH = "home";
 let currentPage = DEFAULT_HASH;
-let addRowData: string = "";
-let addTileData: {pageKey: string, rowName: string } = { pageKey: "", rowName: "" };
 
 let imgKeyCount = 0;
 let savedImgKeys: number[] = [0];
@@ -93,23 +104,23 @@ function addImg(img: string): number {
 
 function createNavbar() {
     const navEl = document.createElement("div");
-    ROOT.appendChild(navEl);
+    HTML_ELEMENTS.ROOT.appendChild(navEl);
     navEl.className = tw("bg-cyan-500 p-2 pb-0");
 
     for (let pageKey in DATA) {
         const selectBtn = document.createElement("button");
         navEl.appendChild(selectBtn);
-        NAVBAR_BTN_ELEMENTS[pageKey] = selectBtn;
+        HTML_ELEMENTS.NAVBAR_BTN_ELEMENTS[pageKey] = selectBtn;
         selectBtn.className = tw("bg-cyan-700 px-2 pt-1 pb-3 mr-0.5 hover:bg-cyan-800 hover:backdrop-opacity-65 disabled:bg-cyan-900")
         selectBtn.textContent = pageKey;
         selectBtn.disabled = pageKey === currentPage;
 
         selectBtn.onclick = () => {
-            (PAGE_ELEMENTS[currentPage] as HTMLDivElement).hidden = true;
-            (NAVBAR_BTN_ELEMENTS[currentPage] as HTMLButtonElement).disabled = false;
+            (HTML_ELEMENTS.PAGE_ELEMENTS[currentPage] as HTMLDivElement).hidden = true;
+            (HTML_ELEMENTS.NAVBAR_BTN_ELEMENTS[currentPage] as HTMLButtonElement).disabled = false;
             currentPage = pageKey;
-            (PAGE_ELEMENTS[currentPage] as HTMLDivElement).hidden = false;
-            (NAVBAR_BTN_ELEMENTS[currentPage] as HTMLButtonElement).disabled = true;
+            (HTML_ELEMENTS.PAGE_ELEMENTS[currentPage] as HTMLDivElement).hidden = false;
+            (HTML_ELEMENTS.NAVBAR_BTN_ELEMENTS[currentPage] as HTMLButtonElement).disabled = true;
         }
     }
 }
@@ -119,45 +130,45 @@ function initInputMenus() {
 
     function initInputMenuRow() {
         const inputEl = document.createElement("input");
-        INPUT_MENU_ROW.appendChild(inputEl);
+        INPUT_MENUS.ROW.appendChild(inputEl);
         inputEl.placeholder = "row name";
         inputEl.className = inputStyle;
     
         const btn = document.createElement("button");
-        INPUT_MENU_ROW.appendChild(btn);
+        INPUT_MENUS.ROW.appendChild(btn);
         btn.textContent = "+";
     
         btn.onclick = () => {
-            (DATA[addRowData] as T_PAGE).rows.push({ name: inputEl.value, tiles: [] });
+            (DATA[INPUT_DATA.row] as T_PAGE).rows.push({ name: inputEl.value, tiles: [] });
             saveDataAndReload();
         }
     }
     
     function initInputMenuTiles() {
         const inputNameEl = document.createElement("input");
-        INPUT_MENU_TILE.appendChild(inputNameEl);
+        INPUT_MENUS.TILE.appendChild(inputNameEl);
         inputNameEl.placeholder = "tile name";
         inputNameEl.className = inputStyle;
     
         const inputLinkEl = document.createElement("input");
-        INPUT_MENU_TILE.appendChild(inputLinkEl);
+        INPUT_MENUS.TILE.appendChild(inputLinkEl);
         inputLinkEl.placeholder = "link";
         inputLinkEl.className = inputStyle;
     
         const inputFileEl = document.createElement("input");
-        INPUT_MENU_TILE.appendChild(inputFileEl);
+        INPUT_MENUS.TILE.appendChild(inputFileEl);
         inputFileEl.type = "file";
         inputFileEl.accept = "image/*";
         inputFileEl.className = inputStyle;
     
         const btn = document.createElement("button");
-        INPUT_MENU_TILE.appendChild(btn);
+        INPUT_MENUS.TILE.appendChild(btn);
         btn.textContent = "+";
         
         btn.onclick = async () => {
-            for (let i = 0; i < (DATA[addTileData.pageKey] as T_PAGE).rows.length; i++) {
-                const r = ((DATA[addTileData.pageKey] as T_PAGE).rows.at(i) as T_ROW);
-                if (r.name !== addTileData.rowName) continue;
+            for (let i = 0; i < (DATA[INPUT_DATA.tile.pageKey] as T_PAGE).rows.length; i++) {
+                const r = ((DATA[INPUT_DATA.tile.pageKey] as T_PAGE).rows.at(i) as T_ROW);
+                if (i !== INPUT_DATA.tile.rowIndex) continue;
     
                 let icon = "";
     
@@ -189,14 +200,14 @@ function initInputMenus() {
         }
     }
 
-    ROOT.appendChild(INPUT_MENU_ROW);
-    INPUT_MENU_ROW.hidden = true;
-    INPUT_MENU_ROW.className = tw("fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-400 grid grid-cols-1 p-4 gap-4");
+    HTML_ELEMENTS.ROOT.appendChild(INPUT_MENUS.ROW);
+    INPUT_MENUS.ROW.hidden = true;
+    INPUT_MENUS.ROW.className = tw("fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-400 grid grid-cols-1 p-4 gap-4");
     initInputMenuRow();
 
-    ROOT.appendChild(INPUT_MENU_TILE);
-    INPUT_MENU_TILE.hidden = true;
-    INPUT_MENU_TILE.className = INPUT_MENU_ROW.className;
+    HTML_ELEMENTS.ROOT.appendChild(INPUT_MENUS.TILE);
+    INPUT_MENUS.TILE.hidden = true;
+    INPUT_MENUS.TILE.className = INPUT_MENUS.ROW.className;
     initInputMenuTiles();
 }
 
@@ -225,40 +236,44 @@ function addTile(rowEl: HTMLDivElement, tile: T_TILE) {
 
 function createAddRowBtn(pageEl: HTMLDivElement, pageKey: string) {
     const btn = document.createElement("btn");
-    EDIT_ELEMENTS.push(btn);
+    HTML_ELEMENTS.EDIT_ELEMENTS.push(btn);
     pageEl.appendChild(btn);
     btn.textContent = "+";
     btn.className = tw("size-24 bg-gray-400 flex items-center justify-center");
 
     btn.onclick = () => {
-        console.log("foo");
-        INPUT_MENU_ROW.hidden = false;
-        addRowData = pageKey;
+        INPUT_MENUS.ROW.hidden = false;
+        INPUT_DATA.row = pageKey;
     }
 }
 
-function createAddTileBtn(rowEl: HTMLDivElement, pageKey: string, rowName: string) {
+function createAddTileBtn(rowEl: HTMLDivElement, pageKey: string, rowIndex: number) {
     const btn = document.createElement("btn");
-    EDIT_ELEMENTS.push(btn);
+    HTML_ELEMENTS.EDIT_ELEMENTS.push(btn);
     rowEl.appendChild(btn);
     btn.textContent = "+";
     btn.className = tw("size-24 bg-gray-400 flex items-center justify-center");
 
     btn.onclick = () => {
-        INPUT_MENU_TILE.hidden = false
-        addTileData = { pageKey: pageKey, rowName: rowName };
+        INPUT_MENUS.TILE.hidden = false
+        INPUT_DATA.tile = {
+            pageKey: pageKey,
+            rowIndex: rowIndex
+        };
     }
 }
 
 function createPages() {
     for (let pageKey in DATA) {
         const pageEl = document.createElement("div");
-        ROOT.appendChild(pageEl);
-        PAGE_ELEMENTS[pageKey] = pageEl;
+        HTML_ELEMENTS.ROOT.appendChild(pageEl);
+        HTML_ELEMENTS.PAGE_ELEMENTS[pageKey] = pageEl;
         pageEl.hidden = currentPage !== pageKey;
         pageEl.className = tw("flex flex-col p-4 gap-2");
-        
-        (DATA[pageKey] as T_PAGE).rows.forEach((row: T_ROW) => {
+
+        for (let i = 0; i < (DATA[pageKey] as T_PAGE).rows.length; i++) {
+            const row = ((DATA[pageKey] as T_PAGE).rows[i]) as T_ROW;
+
             const rowEl = document.createElement("div");
             pageEl.appendChild(rowEl);
             rowEl.className = tw("flex gap-2");
@@ -272,8 +287,8 @@ function createPages() {
                 addTile(rowEl, tile);
             });
 
-            createAddTileBtn(rowEl, pageKey, row.name);
-        });
+            createAddTileBtn(rowEl, pageKey, i);
+        };
         
         createAddRowBtn(pageEl, pageKey);
     }

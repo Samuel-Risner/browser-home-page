@@ -1,9 +1,13 @@
-const ROOT = document.getElementById("root");
-const PAGE_ELEMENTS = {};
-const NAVBAR_BTN_ELEMENTS = {};
-const EDIT_ELEMENTS = [];
-const INPUT_MENU_ROW = document.createElement("div");
-const INPUT_MENU_TILE = document.createElement("div");
+const HTML_ELEMENTS = {
+    ROOT: document.getElementById("root"),
+    PAGE_ELEMENTS: {},
+    NAVBAR_BTN_ELEMENTS: {},
+    EDIT_ELEMENTS: [],
+};
+const INPUT_MENUS = {
+    ROW: document.createElement("div"),
+    TILE: document.createElement("div"),
+};
 const LOCAL_STORADGE_KEYS = {
     defaultPage: ":defaultPage",
     data: ":data",
@@ -82,21 +86,21 @@ function addImg(img) {
 }
 function createNavbar() {
     const navEl = document.createElement("div");
-    ROOT.appendChild(navEl);
+    HTML_ELEMENTS.ROOT.appendChild(navEl);
     navEl.className = tw("bg-cyan-500 p-2 pb-0");
     for (let pageKey in DATA) {
         const selectBtn = document.createElement("button");
         navEl.appendChild(selectBtn);
-        NAVBAR_BTN_ELEMENTS[pageKey] = selectBtn;
+        HTML_ELEMENTS.NAVBAR_BTN_ELEMENTS[pageKey] = selectBtn;
         selectBtn.className = tw("bg-cyan-700 px-2 pt-1 pb-3 mr-0.5 hover:bg-cyan-800 hover:backdrop-opacity-65 disabled:bg-cyan-900");
         selectBtn.textContent = pageKey;
         selectBtn.disabled = pageKey === currentPage;
         selectBtn.onclick = () => {
-            PAGE_ELEMENTS[currentPage].hidden = true;
-            NAVBAR_BTN_ELEMENTS[currentPage].disabled = false;
+            HTML_ELEMENTS.PAGE_ELEMENTS[currentPage].hidden = true;
+            HTML_ELEMENTS.NAVBAR_BTN_ELEMENTS[currentPage].disabled = false;
             currentPage = pageKey;
-            PAGE_ELEMENTS[currentPage].hidden = false;
-            NAVBAR_BTN_ELEMENTS[currentPage].disabled = true;
+            HTML_ELEMENTS.PAGE_ELEMENTS[currentPage].hidden = false;
+            HTML_ELEMENTS.NAVBAR_BTN_ELEMENTS[currentPage].disabled = true;
         };
     }
 }
@@ -104,11 +108,11 @@ function initInputMenus() {
     const inputStyle = tw("border-2 border-gray-300 px-2");
     function initInputMenuRow() {
         const inputEl = document.createElement("input");
-        INPUT_MENU_ROW.appendChild(inputEl);
+        INPUT_MENUS.ROW.appendChild(inputEl);
         inputEl.placeholder = "row name";
         inputEl.className = inputStyle;
         const btn = document.createElement("button");
-        INPUT_MENU_ROW.appendChild(btn);
+        INPUT_MENUS.ROW.appendChild(btn);
         btn.textContent = "+";
         btn.onclick = () => {
             DATA[addRowData].rows.push({ name: inputEl.value, tiles: [] });
@@ -117,20 +121,20 @@ function initInputMenus() {
     }
     function initInputMenuTiles() {
         const inputNameEl = document.createElement("input");
-        INPUT_MENU_TILE.appendChild(inputNameEl);
+        INPUT_MENUS.TILE.appendChild(inputNameEl);
         inputNameEl.placeholder = "tile name";
         inputNameEl.className = inputStyle;
         const inputLinkEl = document.createElement("input");
-        INPUT_MENU_TILE.appendChild(inputLinkEl);
+        INPUT_MENUS.TILE.appendChild(inputLinkEl);
         inputLinkEl.placeholder = "link";
         inputLinkEl.className = inputStyle;
         const inputFileEl = document.createElement("input");
-        INPUT_MENU_TILE.appendChild(inputFileEl);
+        INPUT_MENUS.TILE.appendChild(inputFileEl);
         inputFileEl.type = "file";
         inputFileEl.accept = "image/*";
         inputFileEl.className = inputStyle;
         const btn = document.createElement("button");
-        INPUT_MENU_TILE.appendChild(btn);
+        INPUT_MENUS.TILE.appendChild(btn);
         btn.textContent = "+";
         btn.onclick = async () => {
             for (let i = 0; i < DATA[addTileData.pageKey].rows.length; i++) {
@@ -164,13 +168,13 @@ function initInputMenus() {
             }
         };
     }
-    ROOT.appendChild(INPUT_MENU_ROW);
-    INPUT_MENU_ROW.hidden = true;
-    INPUT_MENU_ROW.className = tw("fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-400 grid grid-cols-1 p-4 gap-4");
+    HTML_ELEMENTS.ROOT.appendChild(INPUT_MENUS.ROW);
+    INPUT_MENUS.ROW.hidden = true;
+    INPUT_MENUS.ROW.className = tw("fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-gray-400 grid grid-cols-1 p-4 gap-4");
     initInputMenuRow();
-    ROOT.appendChild(INPUT_MENU_TILE);
-    INPUT_MENU_TILE.hidden = true;
-    INPUT_MENU_TILE.className = INPUT_MENU_ROW.className;
+    HTML_ELEMENTS.ROOT.appendChild(INPUT_MENUS.TILE);
+    INPUT_MENUS.TILE.hidden = true;
+    INPUT_MENUS.TILE.className = INPUT_MENUS.ROW.className;
     initInputMenuTiles();
 }
 function addTile(rowEl, tile) {
@@ -194,32 +198,32 @@ function addTile(rowEl, tile) {
 }
 function createAddRowBtn(pageEl, pageKey) {
     const btn = document.createElement("btn");
-    EDIT_ELEMENTS.push(btn);
+    HTML_ELEMENTS.EDIT_ELEMENTS.push(btn);
     pageEl.appendChild(btn);
     btn.textContent = "+";
     btn.className = tw("size-24 bg-gray-400 flex items-center justify-center");
     btn.onclick = () => {
         console.log("foo");
-        INPUT_MENU_ROW.hidden = false;
+        INPUT_MENUS.ROW.hidden = false;
         addRowData = pageKey;
     };
 }
 function createAddTileBtn(rowEl, pageKey, rowName) {
     const btn = document.createElement("btn");
-    EDIT_ELEMENTS.push(btn);
+    HTML_ELEMENTS.EDIT_ELEMENTS.push(btn);
     rowEl.appendChild(btn);
     btn.textContent = "+";
     btn.className = tw("size-24 bg-gray-400 flex items-center justify-center");
     btn.onclick = () => {
-        INPUT_MENU_TILE.hidden = false;
+        INPUT_MENUS.TILE.hidden = false;
         addTileData = { pageKey: pageKey, rowName: rowName };
     };
 }
 function createPages() {
     for (let pageKey in DATA) {
         const pageEl = document.createElement("div");
-        ROOT.appendChild(pageEl);
-        PAGE_ELEMENTS[pageKey] = pageEl;
+        HTML_ELEMENTS.ROOT.appendChild(pageEl);
+        HTML_ELEMENTS.PAGE_ELEMENTS[pageKey] = pageEl;
         pageEl.hidden = currentPage !== pageKey;
         pageEl.className = tw("flex flex-col p-4 gap-2");
         DATA[pageKey].rows.forEach((row) => {
