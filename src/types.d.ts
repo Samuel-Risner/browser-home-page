@@ -15,6 +15,4 @@ export type T_PAGE = {
     rows: T_ROW[]
 }
 
-export type T_PAGES = {
-    [key: string]: T_PAGE
-}
+export type T_PAGES = Map<string, T_PAGE>
