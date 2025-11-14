@@ -35,10 +35,9 @@ let DEFAULT_HASH = "home";
 let currentPage = DEFAULT_HASH;
 DATA.set(DEFAULT_HASH, { rows: [] });
 
-let imgKeyCount = 0;
-let savedImgKeys: number[] = [0];
+let imgKeyCount = -1;
+let savedImgKeys: number[] = [];
 const imgData: Map<number, string> = new Map();
-imgData.set(0, "");
 
 const tw = (tailwindCSS: string) => { return tailwindCSS; }
 
@@ -239,6 +238,32 @@ function initInputMenus() {
         inputFileEl.type = "file";
         inputFileEl.accept = "image/*";
         inputFileEl.className = inputStyle;
+
+        let selectedImgKey: null | number = null;
+        let selectedImgButton: null | HTMLButtonElement = null;
+
+        console.log(imgData);
+        const selectAlreadySavedImgEl = createEl("div", INPUT_MENUS.TILE, { hidden: imgData.size === 0, style: inputStyle + tw(" flex flex-row") });
+        imgData.forEach((value, key) => {
+            const btn = createEl("button", selectAlreadySavedImgEl, { style: tw("w-10 h-10 disabled:w-10 disabled:h-10 disabled:border-4 disabled:border-red-500") });
+            const img = createEl("img", btn);
+            img.src = value;
+
+            btn.onclick = () => {
+                if (selectedImgButton) selectedImgButton.disabled = false;
+                selectedImgKey = key;
+                selectedImgButton = btn;
+                btn.disabled = true;
+            }
+        });
+
+        inputFileEl.onclick = () => {
+            if (selectedImgButton) {
+                selectedImgButton.disabled = false;
+                selectedImgButton = null;
+                selectedImgKey = null;
+            }
+        }
     
         const btn = document.createElement("button");
         INPUT_MENUS.TILE.appendChild(btn);
@@ -248,8 +273,14 @@ function initInputMenus() {
             for (let i = 0; i < (DATA.get(INPUT_DATA.tile.pageKey) as T_PAGE).rows.length; i++) {
                 const r = ((DATA.get(INPUT_DATA.tile.pageKey) as T_PAGE).rows.at(i) as T_ROW);
                 if (i !== INPUT_DATA.tile.rowIndex) continue;
-    
+                
                 let icon = "";
+                
+                if (selectedImgButton && selectedImgKey) {
+                    r.tiles.push({name: inputNameEl.value, icon: selectedImgKey, link: inputLinkEl.value });
+                    handleData("save&refresh");
+                    return;
+                }
     
                 function fileToBase64(file: File): Promise<string> {
                     return new Promise((resolve, reject) => {
@@ -266,7 +297,6 @@ function initInputMenus() {
                     if (f !== undefined) {
                         const reader = new FileReader();
                         icon = await fileToBase64(f);
-                        console.log(icon);
                     }
                 }
 
@@ -298,9 +328,9 @@ function addTile(rowEl: HTMLDivElement, tile: T_TILE) {
     linkEl.target = "_blank";
     linkEl.href = tile.link;
     
-    const iconContainerEL = createEl("div", linkEl, { style: tw("size-24 flex items-center justify-center p-2 bg-gray-200") });
+    const iconContainerEL = createEl("div", linkEl, { style: tw("size-24 px-2 pt-2 flex items-center justify-center bg-gray-200") });
     
-    const iconEl = createEl("img", iconContainerEL, { style: tw("object-contain max-w-20 max-h-20") });
+    const iconEl = createEl("img", iconContainerEL, { style: tw("object-contain max-w-20 max-h-16") });
     iconEl.src = imgData.get(tile.icon) || "";
     
     createEl("div", linkEl, { txt: tile.name, style: tw("text-sm flex items-center justify-center h-8 w-full") });
