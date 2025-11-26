@@ -9,17 +9,13 @@ const HTML_ELEMENTS = {
 
 const INPUT_MENUS = {
     PAGE: document.createElement("div"),
-    showForTile: async (options: { mode: "create" | "showForCreate" } | { mode: "edit" | "showForEdit", tileIndex: number }) => {},
+    showForTile: async (options: { mode: "create" | "showForCreate", pageKey: string, rowIndex: number } | { mode: "edit" | "showForEdit", tileIndex: number, pageKey: string, rowIndex: number }) => {},
     ROW: document.createElement("div"),
     TILE: document.createElement("div"),
 }
 
 const INPUT_DATA = {
     row: "",
-    tile: {
-        pageKey: "",
-        rowIndex: 0
-    }
 }
 
 const LOCAL_STORAGE_KEYS = {
@@ -275,13 +271,13 @@ function initInputMenus() {
         const btn = createEl("button", INPUT_MENUS.TILE);
 
         // return all the required data to create or edit a tile
-        async function getData(): Promise<{ name: string, icon: number, link: string, tiles: T_TILE[] }> {
+        async function getData(pageKey: string, rowIndex: number): Promise<{ name: string, icon: number, link: string, tiles: T_TILE[] }> {
             let icon = "";
-            let r = ((DATA.get(INPUT_DATA.tile.pageKey) as T_PAGE).rows.at(0) as T_ROW);
+            let r = ((DATA.get(pageKey) as T_PAGE).rows.at(0) as T_ROW);
 
-            for (let i = 0; i < (DATA.get(INPUT_DATA.tile.pageKey) as T_PAGE).rows.length; i++) {
-                r = ((DATA.get(INPUT_DATA.tile.pageKey) as T_PAGE).rows.at(i) as T_ROW);
-                if (i !== INPUT_DATA.tile.rowIndex) continue;
+            for (let i = 0; i < (DATA.get(pageKey) as T_PAGE).rows.length; i++) {
+                r = ((DATA.get(pageKey) as T_PAGE).rows.at(i) as T_ROW);
+                if (i !== rowIndex) continue;
                 
                 if (selectedImgButton && selectedImgKey !== null) {
                     return {name: inputNameEl.value, icon: selectedImgKey, link: inputLinkEl.value, tiles: r.tiles };
@@ -317,18 +313,20 @@ function initInputMenus() {
             return {name: inputNameEl.value, icon: iconKey, link: inputLinkEl.value, tiles: r.tiles };
         }
 
-        INPUT_MENUS.showForTile = async (options: { mode: "create" | "showForCreate" } | { mode: "edit" | "showForEdit", tileIndex: number}) => {
+        INPUT_MENUS.showForTile = async (options: { mode: "create" | "showForCreate", pageKey: string, rowIndex: number } | { mode: "edit" | "showForEdit", tileIndex: number, pageKey: string, rowIndex: number}) => {
             if (options.mode == "showForCreate") {
                 btn.textContent = "+";
-                btn.onclick = async () => { await INPUT_MENUS.showForTile({ mode: "create" }); };
+                btn.onclick = async () => { await INPUT_MENUS.showForTile({ mode: "create", pageKey: options.pageKey, rowIndex: options.rowIndex }); };
                 INPUT_MENUS.TILE.hidden = false;
+                return;
             } else if (options.mode == "showForEdit") {
                 btn.textContent = "apply";
-                btn.onclick = async () => { await INPUT_MENUS.showForTile({ mode: "edit", tileIndex: options.tileIndex }); };
+                btn.onclick = async () => { await INPUT_MENUS.showForTile({ mode: "edit", tileIndex: options.tileIndex, pageKey: options.pageKey, rowIndex: options.rowIndex }); };
                 INPUT_MENUS.TILE.hidden = false;
+                return;
             }
 
-            const d = await getData();
+            const d = await getData(options.pageKey, options.rowIndex);
 
             if (options.mode == "create") {
                 d.tiles.push({name: d.name, icon: d.icon, link: d.link });
@@ -354,8 +352,10 @@ function initInputMenus() {
     }
 }
 
-function addTile(rowEl: HTMLDivElement, tile: T_TILE, tileIndex: number) {
-    const linkEl = createEl("a", rowEl, { style: tw("size-24 bg-gray-400 flex flex-col relative items-center justify-center")});
+function addTile(rowEl: HTMLDivElement, tile: T_TILE, tileIndex: number, pageKey: string, rowIndex: number) {
+    const containerEl = createEl("div", rowEl, { style: tw("relative") });
+
+    const linkEl = createEl("a", containerEl, { style: tw("size-24 bg-gray-400 flex flex-col relative items-center justify-center")});
     linkEl.target = "_blank";
     linkEl.href = tile.link;
     
@@ -364,8 +364,8 @@ function addTile(rowEl: HTMLDivElement, tile: T_TILE, tileIndex: number) {
     const iconEl = createEl("img", iconContainerEL, { style: tw("object-contain max-w-20 max-h-16") });
     iconEl.src = imgData.get(tile.icon) || "";
 
-    createEl("button", linkEl, { txt: ".", hidden: true, isEditEl: true, style: tw("bg-red-500 size-6 absolute -top-1 -right-1 rounded-full") }).onclick = () => {
-        INPUT_MENUS.showForTile({ mode: "showForEdit", tileIndex: tileIndex });
+    createEl("button", containerEl, { txt: ".", hidden: true, isEditEl: true, style: tw("bg-red-500 size-6 absolute -top-1 -right-1 rounded-full") }).onclick = () => {
+        INPUT_MENUS.showForTile({ mode: "showForEdit", tileIndex: tileIndex, pageKey: pageKey, rowIndex: rowIndex });
     }
     
     createEl("div", linkEl, { txt: tile.name, style: tw("text-sm flex items-center justify-center h-8 w-full") });
@@ -380,11 +380,7 @@ function createAddRowBtn(pageEl: HTMLDivElement, pageKey: string) {
 
 function createAddTileBtn(rowEl: HTMLDivElement, pageKey: string, rowIndex: number) {
     createEl("button", rowEl, { txt: "+", hidden: true, isEditEl: true, style: tw("size-24 bg-gray-400 flex items-center justify-center") }).onclick = () => {
-        INPUT_MENUS.showForTile({ mode: "showForCreate" });
-        INPUT_DATA.tile = {
-            pageKey: pageKey,
-            rowIndex: rowIndex
-        };
+        INPUT_MENUS.showForTile({ mode: "showForCreate", pageKey: pageKey, rowIndex: rowIndex });
     }
 }
 
@@ -398,7 +394,7 @@ function createPages() {
             createEl("div", rowEl, { txt: row.name, style: tw("size-24 bg-gray-400 flex items-center justify-center") });
             
             row.tiles.forEach((tile: T_TILE, tileIndex: number) => {
-                addTile(rowEl, tile, tileIndex);
+                addTile(rowEl, tile, tileIndex, pageKey, i);
             });
 
             createAddTileBtn(rowEl, pageKey, i);
