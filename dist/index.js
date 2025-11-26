@@ -42,6 +42,7 @@ function createEl(el, parent, options = {}) {
         e.textContent = options.txt;
     if (options.isEditEl)
         HTML_ELEMENTS.EDIT_ELEMENTS.push(e);
+    e.disabled = options.disabled || false;
     return e;
 }
 function handleData(mode) {
@@ -113,16 +114,10 @@ function addImg(img) {
     return imgKeyCount;
 }
 function createNavbar() {
-    const navEl = document.createElement("div");
-    HTML_ELEMENTS.ROOT.appendChild(navEl);
-    navEl.className = tw("bg-cyan-500 p-2 pb-0");
+    const navEl = createEl("div", HTML_ELEMENTS.ROOT, { style: tw("bg-cyan-500 p-2 pb-0") });
     for (const pageKey of DATA.keys()) {
-        const selectBtn = document.createElement("button");
-        navEl.appendChild(selectBtn);
+        const selectBtn = createEl("button", navEl, { txt: pageKey, disabled: pageKey === currentPage, style: tw("bg-cyan-700 px-2 pt-1 pb-3 mr-0.5 hover:bg-cyan-800 hover:backdrop-opacity-65 disabled:bg-cyan-900") });
         HTML_ELEMENTS.NAVBAR_BTN_ELEMENTS[pageKey] = selectBtn;
-        selectBtn.className = tw("bg-cyan-700 px-2 pt-1 pb-3 mr-0.5 hover:bg-cyan-800 hover:backdrop-opacity-65 disabled:bg-cyan-900");
-        selectBtn.textContent = pageKey;
-        selectBtn.disabled = pageKey === currentPage;
         selectBtn.onclick = () => {
             HTML_ELEMENTS.PAGE_ELEMENTS[currentPage].hidden = true;
             HTML_ELEMENTS.NAVBAR_BTN_ELEMENTS[currentPage].disabled = false;
@@ -131,12 +126,11 @@ function createNavbar() {
             HTML_ELEMENTS.NAVBAR_BTN_ELEMENTS[currentPage].disabled = true;
         };
     }
-    const addPageBtn = document.createElement("button");
-    navEl.appendChild(addPageBtn);
-    addPageBtn.textContent = "+";
-    addPageBtn.onclick = () => {
+    // add page button
+    createEl("button", navEl, { txt: "+" }).onclick = () => {
         INPUT_MENUS.PAGE.hidden = false;
     };
+    // toggle edit element viability button
     createEl("button", navEl, { txt: "H" }).onclick = () => {
         HTML_ELEMENTS.EDIT_ELEMENTS.forEach((el) => { el.hidden = !el.hidden; });
         document.body.classList.contains("disable-links") ? document.body.classList.remove("disable-links") : document.body.classList.add("disable-links");
