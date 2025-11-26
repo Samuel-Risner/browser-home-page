@@ -6,6 +6,7 @@ const HTML_ELEMENTS = {
 };
 const INPUT_MENUS = {
     PAGE: document.createElement("div"),
+    showForTile: async (options) => { },
     ROW: document.createElement("div"),
     TILE: document.createElement("div"),
 };
@@ -39,6 +40,8 @@ function createEl(el, parent, options = {}) {
     e.hidden = options.hidden || false;
     if (options.txt)
         e.textContent = options.txt;
+    if (options.isEditEl)
+        HTML_ELEMENTS.EDIT_ELEMENTS.push(e);
     return e;
 }
 function handleData(mode) {
@@ -134,10 +137,15 @@ function createNavbar() {
     addPageBtn.onclick = () => {
         INPUT_MENUS.PAGE.hidden = false;
     };
+    createEl("button", navEl, { txt: "H" }).onclick = () => {
+        HTML_ELEMENTS.EDIT_ELEMENTS.forEach((el) => { el.hidden = !el.hidden; });
+        document.body.classList.contains("disable-links") ? document.body.classList.remove("disable-links") : document.body.classList.add("disable-links");
+    };
 }
 function initInputMenus() {
     const inputStyle = tw("border-2 border-gray-300 px-2 mb-4");
     function initInputMenuPage() {
+        // input page name
         const pageAlreadyExistsEl = createEl("div", INPUT_MENUS.PAGE, { hidden: true, style: tw("text-red-600") });
         const inputEl = createEl("input", INPUT_MENUS.PAGE, { style: inputStyle });
         inputEl.placeholder = "page name";
@@ -149,6 +157,7 @@ function initInputMenus() {
             pageAlreadyExistsEl.hidden = false;
             pageAlreadyExistsEl.textContent = `Page "${inputEl.value}" already exists!`;
         };
+        // select position
         createEl("div", INPUT_MENUS.PAGE, { txt: "Select Position:" });
         const selectPosEl = createEl("select", INPUT_MENUS.PAGE, { hidden: DATA.size === 0, style: inputStyle });
         [...DATA.keys(), "at the end"].forEach((pageName, i) => {
@@ -190,14 +199,17 @@ function initInputMenus() {
         };
     }
     function initInputMenuTiles() {
+        // input name
         const inputNameEl = document.createElement("input");
         INPUT_MENUS.TILE.appendChild(inputNameEl);
         inputNameEl.placeholder = "tile name";
         inputNameEl.className = inputStyle;
+        // input link
         const inputLinkEl = document.createElement("input");
         INPUT_MENUS.TILE.appendChild(inputLinkEl);
         inputLinkEl.placeholder = "link";
         inputLinkEl.className = inputStyle;
+        // input img
         const inputFileEl = document.createElement("input");
         INPUT_MENUS.TILE.appendChild(inputFileEl);
         inputFileEl.type = "file";
@@ -205,7 +217,6 @@ function initInputMenus() {
         inputFileEl.className = inputStyle;
         let selectedImgKey = null;
         let selectedImgButton = null;
-        console.log(imgData);
         const selectAlreadySavedImgEl = createEl("div", INPUT_MENUS.TILE, { hidden: imgData.size === 0, style: inputStyle + tw(" flex flex-row") });
         imgData.forEach((value, key) => {
             const btn = createEl("button", selectAlreadySavedImgEl, { style: tw("w-10 h-10 disabled:w-10 disabled:h-10 disabled:border-4 disabled:border-red-500") });
@@ -226,19 +237,20 @@ function initInputMenus() {
                 selectedImgKey = null;
             }
         };
-        const btn = document.createElement("button");
-        INPUT_MENUS.TILE.appendChild(btn);
-        btn.textContent = "+";
-        btn.onclick = async () => {
+        // btn to create/apply changes
+        const btn = createEl("button", INPUT_MENUS.TILE);
+        // return all the required data to create or edit a tile
+        async function getData() {
+            let icon = "";
+            let r = DATA.get(INPUT_DATA.tile.pageKey).rows.at(0);
             for (let i = 0; i < DATA.get(INPUT_DATA.tile.pageKey).rows.length; i++) {
-                const r = DATA.get(INPUT_DATA.tile.pageKey).rows.at(i);
+                r = DATA.get(INPUT_DATA.tile.pageKey).rows.at(i);
                 if (i !== INPUT_DATA.tile.rowIndex)
                     continue;
-                let icon = "";
-                if (selectedImgButton && selectedImgKey) {
-                    r.tiles.push({ name: inputNameEl.value, icon: selectedImgKey, link: inputLinkEl.value });
-                    handleData("save&refresh");
-                    return;
+                if (selectedImgButton && selectedImgKey !== null) {
+                    return { name: inputNameEl.value, icon: selectedImgKey, link: inputLinkEl.value, tiles: r.tiles };
+                    // r.tiles.push({name: inputNameEl.value, icon: selectedImgKey, link: inputLinkEl.value });
+                    // handleData("save&refresh");
                 }
                 function fileToBase64(file) {
                     return new Promise((resolve, reject) => {
@@ -256,13 +268,34 @@ function initInputMenus() {
                         icon = await fileToBase64(f);
                     }
                 }
-                let iconKey = 0;
-                if (icon !== "")
-                    iconKey = addImg(icon);
-                r.tiles.push({ name: inputNameEl.value, icon: iconKey, link: inputLinkEl.value });
-                handleData("save&refresh");
+                // r.tiles.push({name: inputNameEl.value, icon: iconKey, link: inputLinkEl.value });
+                // handleData("save&refresh");
                 break;
             }
+            let iconKey = 0;
+            if (icon !== "")
+                iconKey = addImg(icon);
+            return { name: inputNameEl.value, icon: iconKey, link: inputLinkEl.value, tiles: r.tiles };
+        }
+        INPUT_MENUS.showForTile = async (options) => {
+            if (options.mode == "showForCreate") {
+                btn.textContent = "+";
+                btn.onclick = async () => { await INPUT_MENUS.showForTile({ mode: "create" }); };
+                INPUT_MENUS.TILE.hidden = false;
+            }
+            else if (options.mode == "showForEdit") {
+                btn.textContent = "apply";
+                btn.onclick = async () => { await INPUT_MENUS.showForTile({ mode: "edit", tileIndex: options.tileIndex }); };
+                INPUT_MENUS.TILE.hidden = false;
+            }
+            const d = await getData();
+            if (options.mode == "create") {
+                d.tiles.push({ name: d.name, icon: d.icon, link: d.link });
+            }
+            else if (options.mode == "edit") {
+                d.tiles[options.tileIndex] = { name: d.name, icon: d.icon, link: d.link };
+            }
+            handleData("save&refresh");
         };
     }
     const x = [
@@ -277,28 +310,27 @@ function initInputMenus() {
         initFun();
     }
 }
-function addTile(rowEl, tile) {
-    const linkEl = createEl("a", rowEl, { style: tw("size-24 bg-gray-400 flex flex-col items-center justify-center") });
+function addTile(rowEl, tile, tileIndex) {
+    const linkEl = createEl("a", rowEl, { style: tw("size-24 bg-gray-400 flex flex-col relative items-center justify-center") });
     linkEl.target = "_blank";
     linkEl.href = tile.link;
     const iconContainerEL = createEl("div", linkEl, { style: tw("size-24 px-2 pt-2 flex items-center justify-center bg-gray-200") });
     const iconEl = createEl("img", iconContainerEL, { style: tw("object-contain max-w-20 max-h-16") });
     iconEl.src = imgData.get(tile.icon) || "";
+    createEl("button", linkEl, { txt: ".", hidden: true, isEditEl: true, style: tw("bg-red-500 size-6 absolute -top-1 -right-1 rounded-full") }).onclick = () => {
+        INPUT_MENUS.showForTile({ mode: "showForEdit", tileIndex: tileIndex });
+    };
     createEl("div", linkEl, { txt: tile.name, style: tw("text-sm flex items-center justify-center h-8 w-full") });
 }
 function createAddRowBtn(pageEl, pageKey) {
-    const btn = createEl("button", pageEl, { txt: "+", style: tw("size-24 bg-gray-400 flex items-center justify-center") });
-    HTML_ELEMENTS.EDIT_ELEMENTS.push(btn);
-    btn.onclick = () => {
+    createEl("button", pageEl, { txt: "+", hidden: true, isEditEl: true, style: tw("size-24 bg-gray-400 flex items-center justify-center") }).onclick = () => {
         INPUT_MENUS.ROW.hidden = false;
         INPUT_DATA.row = pageKey;
     };
 }
 function createAddTileBtn(rowEl, pageKey, rowIndex) {
-    const btn = createEl("button", rowEl, { txt: "+", style: tw("size-24 bg-gray-400 flex items-center justify-center") });
-    HTML_ELEMENTS.EDIT_ELEMENTS.push(btn);
-    btn.onclick = () => {
-        INPUT_MENUS.TILE.hidden = false;
+    createEl("button", rowEl, { txt: "+", hidden: true, isEditEl: true, style: tw("size-24 bg-gray-400 flex items-center justify-center") }).onclick = () => {
+        INPUT_MENUS.showForTile({ mode: "showForCreate" });
         INPUT_DATA.tile = {
             pageKey: pageKey,
             rowIndex: rowIndex
@@ -312,8 +344,8 @@ function createPages() {
         pageData.rows.forEach((row, i) => {
             const rowEl = createEl("div", pageEl, { style: tw("flex gap-2") });
             createEl("div", rowEl, { txt: row.name, style: tw("size-24 bg-gray-400 flex items-center justify-center") });
-            row.tiles.forEach((tile) => {
-                addTile(rowEl, tile);
+            row.tiles.forEach((tile, tileIndex) => {
+                addTile(rowEl, tile, tileIndex);
             });
             createAddTileBtn(rowEl, pageKey, i);
         });
