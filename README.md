@@ -2,51 +2,22 @@
 
 Small app to build a nice browser home page
 
-# How to edit
+# Setup dev server
 
-## Editing the JavaScript file
+Instructions for Linux, for help see: https://gist.github.com/Samuel-Risner/2318e00383ebf54dfc96e7a04e691334
 
-Pro | Con
----|---
-no compiling needed | no TypeScript IntelliSense
-1. open `dist/index.js`
-2. edit:
-    `const DEFAULT_HASH = "#Home";`
-    and 
-    `const PAGES = {
-        ...
-    };`
+Create virtual environment:
 
-## Editing the TypeScript file
+```virtualenv venv```
 
-### Option 1 edit data.ts
+Enter environment:
 
-Pros | Cons
----|---
-TypeScript IntelliSense | needs building
-different file for user specific data (easier to update) | needs Python or manual copy and pasting
+```source venv/bin/activate```
 
-1. open `personal/data.ts`
-2. edit:
-    `const DEFAULT_HASH = "#Home";`
-    and 
-    `const PAGES = {
-        ...
-    };`
-4. run `include personal_data_ts in index_ts.py`
-3. run `npm run build`
+Install requirements:
 
-### Option 2 edit index.ts
+```pip install -r requirements.txt```
 
-Pro | Con
----|---
-TypeScript IntelliSense | needs building
+Start server:
 
-1. open `src/index.ts`
-2. edit:
-    `const DEFAULT_HASH = "#Home";`
-    and 
-    `const PAGES = {
-        ...
-    };`
-3. run `npm run build`
+```python3 server.py```
