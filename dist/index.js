@@ -17,7 +17,7 @@ const INPUT_DATA = {
         rowIndex: 0
     }
 };
-const LOCAL_STORADGE_KEYS = {
+const LOCAL_STORAGE_KEYS = {
     defaultPage: ":defaultPage",
     data: ":data",
     imgKeysCount: ":imgKeyCount",
@@ -47,25 +47,25 @@ function createEl(el, parent, options = {}) {
 function handleData(mode) {
     const parts = [
         {
-            LSKey: LOCAL_STORADGE_KEYS.data,
+            LSKey: LOCAL_STORAGE_KEYS.data,
             LSreplace: JSON.stringify([...DATA]),
             loadFn: (localStorageValue) => { DATA = new Map(JSON.parse(localStorageValue)); },
             getStrToSave: () => { return JSON.stringify([...DATA]); }
         },
         {
-            LSKey: LOCAL_STORADGE_KEYS.defaultPage,
+            LSKey: LOCAL_STORAGE_KEYS.defaultPage,
             LSreplace: null,
             loadFn: (LSvalue) => { DEFAULT_HASH = LSvalue; },
             getStrToSave: () => { return DEFAULT_HASH; }
         },
         {
-            LSKey: LOCAL_STORADGE_KEYS.imgKeysCount,
+            LSKey: LOCAL_STORAGE_KEYS.imgKeysCount,
             LSreplace: JSON.stringify(imgKeyCount),
             loadFn: (LSvalue) => { imgKeyCount = JSON.parse(LSvalue); },
             getStrToSave: () => { return JSON.stringify(imgKeyCount); }
         },
         {
-            LSKey: LOCAL_STORADGE_KEYS.savedImgKeys,
+            LSKey: LOCAL_STORAGE_KEYS.savedImgKeys,
             LSreplace: JSON.stringify(savedImgKeys),
             loadFn: (LSValue) => { savedImgKeys = JSON.parse(LSValue); },
             getStrToSave: () => { return JSON.stringify(savedImgKeys); }
@@ -83,7 +83,7 @@ function handleData(mode) {
             }
         });
         savedImgKeys.forEach((key) => {
-            const d = localStorage.getItem(`${LOCAL_STORADGE_KEYS.imgDataPrefix}${key}`);
+            const d = localStorage.getItem(`${LOCAL_STORAGE_KEYS.imgDataPrefix}${key}`);
             if (d === null)
                 return;
             imgData.set(key, d);
@@ -108,8 +108,8 @@ function addImg(img) {
     imgKeyCount++;
     savedImgKeys.push(imgKeyCount);
     imgData.set(imgKeyCount, img);
-    localStorage.setItem(`${LOCAL_STORADGE_KEYS.imgDataPrefix}${imgKeyCount}`, img);
-    localStorage.setItem(LOCAL_STORADGE_KEYS.imgKeysCount, JSON.stringify(imgKeyCount));
+    localStorage.setItem(`${LOCAL_STORAGE_KEYS.imgDataPrefix}${imgKeyCount}`, img);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.imgKeysCount, JSON.stringify(imgKeyCount));
     return imgKeyCount;
 }
 function createNavbar() {
