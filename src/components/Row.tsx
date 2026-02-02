@@ -1,6 +1,7 @@
 import CONSTANTS from "../constants";
+import type DataRow from "../data/row";
 import type ImageHandler from "../imgHandler";
-import type DataRow from "./data/row";
+import EditRowBtn from "./edit/row/EditRowBtn";
 import AddTileBtn from "./edit/tile/AddTileBtn";
 import Tile from "./Tile";
 
@@ -10,6 +11,11 @@ function Row(
 ) {
   return (
     <div className="flex flex-row gap-2">
+      { !editingActivated? <></> : <EditRowBtn
+        dataRow={ dataRow }
+        updateData={ updateData }
+      ></EditRowBtn> }
+
       <div className={ `${CONSTANTS.TWCSS.tileSize} bg-gray-500` }>
         <div>
           { dataRow.getName() }

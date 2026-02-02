@@ -1,5 +1,5 @@
+import type DataTab from "../data/tab";
 import type ImageHandler from "../imgHandler";
-import type DataTab from "./data/tab";
 import AddRowBtn from "./edit/row/AddRowBtn";
 import Row from "./Row";
 
