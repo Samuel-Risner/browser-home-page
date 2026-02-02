@@ -9,8 +9,6 @@ export default class ImageHandler {
      * - img base 64 encoded
      */
     private imgDB: T_IMG[] = [];
-    // private imgDB: T_IMGS[1] = [];
-
 
     constructor(imgData: T_IMGS) {
         this.imgIDcount = imgData[0];
@@ -21,9 +19,11 @@ export default class ImageHandler {
      * @returns the img ID
      */
     addImg(base64data: string): string {
-        this.imgDB.push([String(this.imgIDcount), base64data]);
+        const id = String(this.imgIDcount);
         this.imgIDcount++;
-        return String(this.imgIDcount);
+
+        this.imgDB.push([id, base64data]);
+        return String(id);
     }
 
     getImgDB() {
