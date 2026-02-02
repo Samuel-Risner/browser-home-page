@@ -1,11 +1,11 @@
-import type { T_TILE } from "../../types";
+import type { T_TILE } from "../types";
 
 export default class DataTile {
 
     private name: string;
     private linkORcopy: "link" | "copy";
     private linkORtextToCopy: string;
-    private imgID: number | null;
+    private imgID: string | null;
 
     constructor(data: T_TILE) {
         this.name = data[0];
@@ -13,6 +13,10 @@ export default class DataTile {
         this.linkORtextToCopy = data[2];
         this.imgID = data[3];
     }
+
+    //
+    // - Getters
+    //
 
     getName() {
         return this.name;

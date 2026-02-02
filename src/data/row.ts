@@ -1,4 +1,4 @@
-import type { T_ROW, T_TILE } from "../../types";
+import type { T_ROW, T_TILE } from "../types";
 import DataTile from "./tile";
 
 export default class DataRow {
@@ -11,9 +11,13 @@ export default class DataRow {
         data[1].forEach((d: T_TILE) => this.tiles.push(new DataTile(d)));
     }
 
-    addTile(name: string, tileType: "link" | "copy", linkORtextToCopy: string, imgID: number | null) {
+    addTile(name: string, tileType: "link" | "copy", linkORtextToCopy: string, imgID: string | null) {
         this.tiles.push(new DataTile([name, tileType, linkORtextToCopy, imgID]));
     }
+
+    //
+    // - Getters
+    //
 
     getName() {
         return this.name;

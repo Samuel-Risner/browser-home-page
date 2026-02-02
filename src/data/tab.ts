@@ -1,4 +1,4 @@
-import type { T_ROW, T_TAB } from "../../types";
+import type { T_ROW, T_TAB } from "../types";
 import DataRow from "./row";
 
 export default class DataTab {
@@ -15,9 +15,17 @@ export default class DataTab {
         this.rows.push(new DataRow([name, []]));
     }
 
+    //
+    // - Setters
+    //
+
     setName(name: string) {
         this.name = name;
     }
+
+    //
+    // - Getters
+    //
 
     getName() {
         return this.name;

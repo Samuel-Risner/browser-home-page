@@ -1,4 +1,4 @@
-import type { T_MENU, T_TAB } from "../../types";
+import type { T_MENU, T_TAB } from "../types";
 import DataTab from "./tab";
 
 export default class DataMenu {
@@ -14,6 +14,10 @@ export default class DataMenu {
     addTab(name: string) {
         this.tabs.push(new DataTab([name, []]))
     }
+
+    //
+    // - Getters
+    //
 
     getName() {
         return this.name;

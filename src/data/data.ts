@@ -12,6 +12,10 @@ export default class Data {
         this.searchParams = loadURLsearchParams()[0];
     }
 
+    //
+    // - Getters
+    //
+
     getMenus() {
         return this.menus;
     }
