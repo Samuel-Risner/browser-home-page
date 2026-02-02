@@ -7,11 +7,9 @@ const HTML_ELEMENTS = {
 const INPUT_MENUS = {
     PAGE: document.createElement("div"),
     showForTile: async (options) => { },
+    showForRow: (options) => { },
     ROW: document.createElement("div"),
     TILE: document.createElement("div"),
-};
-const INPUT_DATA = {
-    row: "",
 };
 const LOCAL_STORAGE_KEYS = {
     defaultPage: ":defaultPage",
@@ -38,7 +36,12 @@ function createEl(el, parent, options = {}) {
         e.textContent = options.txt;
     if (options.isEditEl)
         HTML_ELEMENTS.EDIT_ELEMENTS.push(e);
-    e.disabled = options.disabled || false;
+    if (options.disabled)
+        e.disabled = options.disabled;
+    if (options.placeHolder)
+        e.placeholder = options.placeHolder;
+    if (options.onclick)
+        e.onclick = options.onclick;
     return e;
 }
 function handleData(mode) {
@@ -176,16 +179,27 @@ function initInputMenus() {
         };
     }
     function initInputMenuRow() {
-        const inputEl = document.createElement("input");
-        INPUT_MENUS.ROW.appendChild(inputEl);
-        inputEl.placeholder = "row name";
-        inputEl.className = inputStyle;
-        const btn = document.createElement("button");
-        INPUT_MENUS.ROW.appendChild(btn);
-        btn.textContent = "+";
-        btn.onclick = () => {
-            DATA.get(INPUT_DATA.row).rows.push({ name: inputEl.value, tiles: [] });
-            handleData("save&refresh");
+        const inputRowNameEl = createEl("input", INPUT_MENUS.ROW, { style: inputStyle, placeHolder: "row name" });
+        const btn = createEl("button", INPUT_MENUS.ROW, { txt: "+" });
+        INPUT_MENUS.showForRow = (options) => {
+            if (options.mode == "showForCreate") {
+                btn.textContent = "+";
+                INPUT_MENUS.ROW.hidden = false;
+                btn.onclick = () => { INPUT_MENUS.showForRow({ mode: "create", pageKey: options.pageKey }); };
+            }
+            else if (options.mode == "showForEdit") {
+                btn.textContent = "apply";
+                INPUT_MENUS.ROW.hidden = false;
+                btn.onclick = () => { INPUT_MENUS.showForRow({ mode: "edit", pageKey: options.pageKey, rowIndex: options.rowIndex }); };
+            }
+            else if (options.mode == "create") {
+                DATA.get(options.pageKey).rows.push({ name: inputRowNameEl.value, tiles: [] });
+                handleData("save&refresh");
+            }
+            else if (options.mode == "edit") {
+                DATA.get(options.pageKey).rows.at(options.rowIndex).name = inputRowNameEl.value;
+                handleData("save&refresh");
+            }
         };
     }
     function initInputMenuTiles() {
@@ -290,6 +304,7 @@ function initInputMenus() {
             handleData("save&refresh");
         };
     }
+    // add menu elements to root and set styling
     const x = [
         [INPUT_MENUS.PAGE, initInputMenuPage],
         [INPUT_MENUS.ROW, initInputMenuRow],
@@ -302,7 +317,10 @@ function initInputMenus() {
         initFun();
     }
 }
-function addTile(rowEl, tile, tileIndex, pageKey, rowIndex) {
+function _createEditButton(parent, onclick) {
+    return createEl("button", parent, { txt: ".", hidden: true, isEditEl: true, onclick: onclick, style: tw("bg-red-500 size-6 absolute -top-1 -right-1 rounded-full") });
+}
+function _addTile(rowEl, tile, tileIndex, pageKey, rowIndex) {
     const containerEl = createEl("div", rowEl, { style: tw("relative") });
     const linkEl = createEl("a", containerEl, { style: tw("size-24 bg-gray-400 flex flex-col relative items-center justify-center") });
     linkEl.target = "_blank";
@@ -310,35 +328,35 @@ function addTile(rowEl, tile, tileIndex, pageKey, rowIndex) {
     const iconContainerEL = createEl("div", linkEl, { style: tw("size-24 px-2 pt-2 flex items-center justify-center bg-gray-200") });
     const iconEl = createEl("img", iconContainerEL, { style: tw("object-contain max-w-20 max-h-16") });
     iconEl.src = imgData.get(tile.icon) || "";
-    createEl("button", containerEl, { txt: ".", hidden: true, isEditEl: true, style: tw("bg-red-500 size-6 absolute -top-1 -right-1 rounded-full") }).onclick = () => {
+    _createEditButton(containerEl, () => {
         INPUT_MENUS.showForTile({ mode: "showForEdit", tileIndex: tileIndex, pageKey: pageKey, rowIndex: rowIndex });
-    };
+    });
     createEl("div", linkEl, { txt: tile.name, style: tw("text-sm flex items-center justify-center h-8 w-full") });
 }
-function createAddRowBtn(pageEl, pageKey) {
-    createEl("button", pageEl, { txt: "+", hidden: true, isEditEl: true, style: tw("size-24 bg-gray-400 flex items-center justify-center") }).onclick = () => {
-        INPUT_MENUS.ROW.hidden = false;
-        INPUT_DATA.row = pageKey;
-    };
-}
-function createAddTileBtn(rowEl, pageKey, rowIndex) {
+function _createAddTileBtn(rowEl, pageKey, rowIndex) {
     createEl("button", rowEl, { txt: "+", hidden: true, isEditEl: true, style: tw("size-24 bg-gray-400 flex items-center justify-center") }).onclick = () => {
         INPUT_MENUS.showForTile({ mode: "showForCreate", pageKey: pageKey, rowIndex: rowIndex });
+    };
+}
+function _createAddRowBtn(pageEl, pageKey) {
+    createEl("button", pageEl, { txt: "+", hidden: true, isEditEl: true, style: tw("size-24 bg-gray-400 flex items-center justify-center") }).onclick = () => {
+        INPUT_MENUS.showForRow({ mode: "showForCreate", pageKey: pageKey });
     };
 }
 function createPages() {
     DATA.forEach((pageData, pageKey) => {
         const pageEl = createEl("div", HTML_ELEMENTS.ROOT, { hidden: currentPage !== pageKey, style: tw("flex flex-col p-4 gap-2") });
         HTML_ELEMENTS.PAGE_ELEMENTS[pageKey] = pageEl;
-        pageData.rows.forEach((row, i) => {
+        pageData.rows.forEach((row, rowIndex) => {
             const rowEl = createEl("div", pageEl, { style: tw("flex gap-2") });
-            createEl("div", rowEl, { txt: row.name, style: tw("size-24 bg-gray-400 flex items-center justify-center") });
+            const rowNameEl = createEl("div", rowEl, { txt: row.name, style: tw("size-24 bg-gray-400 flex items-center justify-center relative") });
+            _createEditButton(rowNameEl, () => { INPUT_MENUS.showForRow({ mode: "showForEdit", pageKey: pageKey, rowIndex: rowIndex }); });
             row.tiles.forEach((tile, tileIndex) => {
-                addTile(rowEl, tile, tileIndex, pageKey, i);
+                _addTile(rowEl, tile, tileIndex, pageKey, rowIndex);
             });
-            createAddTileBtn(rowEl, pageKey, i);
+            _createAddTileBtn(rowEl, pageKey, rowIndex);
         });
-        createAddRowBtn(pageEl, pageKey);
+        _createAddRowBtn(pageEl, pageKey);
     });
 }
 handleData("load");
