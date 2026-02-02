@@ -1,23 +1,28 @@
-# Browser Home Page
+# How to use
 
-Small app to build a nice browser home page
+You can preview the site here: ...
 
-# Setup dev server
+## Modes
 
-Instructions for Linux, for help see: https://gist.github.com/Samuel-Risner/2318e00383ebf54dfc96e7a04e691334
 
-Create virtual environment:
+### `?mode=ls`
 
-```virtualenv venv```
+Default mode
 
-Enter environment:
+### `?mode=data`
 
-```source venv/bin/activate```
 
-Install requirements:
 
-```pip install -r requirements.txt```
+# Dev stuff
 
-Start server:
+## Run dev server
 
-```python3 server.py```
+```sh
+npm run dev
+```
+
+## Build
+
+```sh
+npm run build
+```
