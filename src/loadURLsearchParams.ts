@@ -7,7 +7,7 @@ function verifyChars(textToVerify: string): boolean {
 /**
  * @returns finished parameters and a list with error messages
  */
-export default function loadURLparams(): [T_SEARCH_PARAMS, string[]] {
+export default function loadURLsearchParams(): [T_SEARCH_PARAMS, string[]] {
     let finished_params: T_SEARCH_PARAMS = {
         from: "local",
         src: "",

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import Data from "./components/data/data";
 import Menu from "./components/Menu";
 import ImageHandler from "./imgHandler";
-import loadURLparams from "./urlsParams";
+import loadURLparams from "./loadURLsearchParams";
+import Data from "./data/data";
 
 /**
  * Modes:
