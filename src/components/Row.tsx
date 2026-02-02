@@ -11,15 +11,15 @@ function Row(
 ) {
   return (
     <div className="flex flex-row gap-2">
-      { !editingActivated? <></> : <EditRowBtn
-        dataRow={ dataRow }
-        updateData={ updateData }
-      ></EditRowBtn> }
-
-      <div className={ `${CONSTANTS.TWCSS.tileSize} bg-gray-500` }>
+      <div className={ `${CONSTANTS.TWCSS.tileSize} bg-gray-500 relative` }>
         <div>
           { dataRow.getName() }
         </div>
+
+        { !editingActivated? <></> : <EditRowBtn
+          dataRow={ dataRow }
+          updateData={ updateData }
+        ></EditRowBtn> }
       </div>
 
       { dataRow.getTiles().map((dataTile, index) => <Tile

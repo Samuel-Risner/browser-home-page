@@ -16,6 +16,14 @@ export default class DataRow {
     }
 
     //
+    // - Setters
+    //
+
+    setName(name: string) {
+        this.name = name;
+    }
+
+    //
     // - Getters
     //
 

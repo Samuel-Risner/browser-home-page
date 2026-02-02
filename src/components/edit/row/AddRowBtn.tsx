@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type DataTab from "../../data/tab";
-import AddRowMenu from "./AddRowMenu";
+import type DataTab from "../../../data/tab";
+import AddRowMenu from "./RowMenu";
 import CONSTANTS from "../../../constants";
 
 function AddRowBtn({ dataTab, updateData }: { dataTab: DataTab, updateData: () => void}) {
@@ -11,6 +11,8 @@ function AddRowBtn({ dataTab, updateData }: { dataTab: DataTab, updateData: () =
       closeFunction={ () => setShowMenu(false) }
       dataTab={ dataTab }
       updateData={ updateData }
+      editing={ false }
+      dataRow={ null }
     ></AddRowMenu>
   );
 
