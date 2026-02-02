@@ -43,3 +43,11 @@ export type T_IMG = [
 ];
 
 export type T_IMGS = [number, T_IMG[]];
+
+export type T_SEARCH_PARAMS = {
+    from: "local" | "site",
+    src: string,
+    useLS: boolean,
+    encrypted: boolean,
+    savePswd: boolean
+};
