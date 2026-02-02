@@ -15,14 +15,15 @@ function fileToBase64 (file: File): Promise<string> {
   });
 }
 
-function ImgMenu({ imgHandler, closeFunction }: { imgHandler: ImageHandler, closeFunction: () => void }) {
-  const [selectedImg, setSelectedImg] = useState<string | null>(null);
-
+function ImgMenu(
+  { imgHandler, closeFunction, selectedImgID, selectImg }:
+  { imgHandler: ImageHandler, closeFunction: () => void, selectedImgID: string, selectImg: (id: string) => void }
+) {
   const selectFunction = (id: string) => {
-    if (selectedImg === id) {
-      setSelectedImg(null);
+    if (selectedImgID === id) {
+      selectImg("");
     } else {
-      setSelectedImg(id);
+      selectImg(id);
     }
   }
 
@@ -33,7 +34,7 @@ function ImgMenu({ imgHandler, closeFunction }: { imgHandler: ImageHandler, clos
     if (!file.type.startsWith("image/")) return;
 
     const base64 = await fileToBase64(file);
-    setSelectedImg(imgHandler.addImg(base64));
+    selectImg(imgHandler.addImg(base64));
   }
 
   return (
@@ -55,7 +56,7 @@ function ImgMenu({ imgHandler, closeFunction }: { imgHandler: ImageHandler, clos
         { imgHandler.getImgDB().map(d => <ImgDisplay
           imgBase64data={ d[1] }
           selectFunction={ () => selectFunction(d[0]) }
-          selected={ d[0] === selectedImg }
+          selected={ d[0] === selectedImgID }
           key={ d[0] }
         ></ImgDisplay>) }
       </div>

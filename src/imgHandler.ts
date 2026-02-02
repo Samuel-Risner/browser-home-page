@@ -26,6 +26,14 @@ export default class ImageHandler {
         return String(id);
     }
 
+    getBase64(id: string): string {
+        for (let i = 0; i < this.imgDB.length; i++) {
+            if (this.imgDB[i][0] === id) return this.imgDB[i][1];
+        }
+
+        return "";
+    }
+
     getImgDB() {
         return this.imgDB;
     }

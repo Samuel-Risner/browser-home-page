@@ -13,7 +13,7 @@ function AddTileMenu(
   const [newTileName, setNewTileName] = useState<string>("");
   const [newTileType, setNewTileType] = useState<boolean>(true);
   const [newTileLinkORtextToCopy, setNewTileLinkORtextToCopy] = useState<string>("");
-  // const [newTileImgID, setNewTileImgID] = useState<string>("");
+  const [newTileImgID, setNewTileImgID] = useState<string>("");
 
   return (
     <>
@@ -23,17 +23,24 @@ function AddTileMenu(
 
       <div className={ CONSTANTS.TWCSS.menuBase }>
         <button onClick={ closeFunction }>x</button>
+        
         <input value={ newTileName } onChange={ (e) => setNewTileName(e.target.value) } type="text" className={ CONSTANTS.TWCSS.input }></input>
+
         <ToggleBtn
           updateState={ setNewTileType }
           state={ newTileType }
           option1text="link"
           option2text="copy"
         ></ToggleBtn>
+
         <input value={ newTileLinkORtextToCopy } onChange={ (e) => setNewTileLinkORtextToCopy(e.target.value) } type="text" className={ CONSTANTS.TWCSS.input }></input>
+
         <ShowImgMenuBtn
           imgHandler={ imgHandler }
+          selectImg={ setNewTileImgID }
+          selectedImgID={ newTileImgID }
         ></ShowImgMenuBtn>
+
         <button onClick={ () => { dataRow.addTile(newTileName, newTileType? "link" : "copy", newTileLinkORtextToCopy, null); closeFunction(); updateData(); } }>create</button>
       </div>
     </>
