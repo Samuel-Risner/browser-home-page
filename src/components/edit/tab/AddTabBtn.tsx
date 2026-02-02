@@ -1,6 +1,6 @@
 import { useState } from "react";
 import TabMenu from "./TabMenu";
-import type DataMenu from "../../data/menu";
+import type DataMenu from "../../../data/menu";
 
 function AddTabBtn({ dataMenu, updateData }: { dataMenu: DataMenu, updateData: () => void }) {
   const [showMenu, setShowMenu] = useState<boolean>(false);

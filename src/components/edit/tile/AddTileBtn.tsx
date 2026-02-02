@@ -1,6 +1,6 @@
 import { useState } from "react";
 import AddTileMenu from "./AddTileMenu";
-import type DataRow from "../../data/row";
+import type DataRow from "../../../data/row";
 import CONSTANTS from "../../../constants";
 import type ImageHandler from "../../../imgHandler";
 

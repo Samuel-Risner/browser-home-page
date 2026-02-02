@@ -1,4 +1,4 @@
-import type DataTab from "./data/tab";
+import type DataTab from "../data/tab";
 import EditTabBtn from "./edit/tab/EditTabBtn";
 
 function Tab(

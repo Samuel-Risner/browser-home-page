@@ -1,7 +1,7 @@
 import { useState } from "react";
 import CONSTANTS from "../../../constants";
 import CloseMenuBackdrop from "../../misc/CloseMenuBackdrop";
-import type DataRow from "../../data/row";
+import type DataRow from "../../../data/row";
 import ToggleBtn from "../../misc/ToggleBtn";
 import ShowImgMenuBtn from "../../img/ShowImgMenuBtn";
 import type ImageHandler from "../../../imgHandler";

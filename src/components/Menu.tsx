@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type DataMenu from "./data/menu";
+import type DataMenu from "../data/menu";
 import Tab from "./Tab";
 import View from "./View";
 import ToolMenu from "./tools/ToolMenu";

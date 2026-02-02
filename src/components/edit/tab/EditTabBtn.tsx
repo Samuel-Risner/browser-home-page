@@ -1,6 +1,6 @@
 import { useState } from "react";
 import TabMenu from "./TabMenu";
-import type DataTab from "../../data/tab";
+import type DataTab from "../../../data/tab";
 
 function EditTabBtn({ updateData, dataTab }: { updateData: () => void, dataTab: DataTab }) {
   const [showMenu, setShowMenu] = useState<boolean>(false);

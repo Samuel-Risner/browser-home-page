@@ -1,8 +1,8 @@
 import { useState } from "react";
 import CONSTANTS from "../../../constants";
 import CloseMenuBackdrop from "../../misc/CloseMenuBackdrop";
-import type DataMenu from "../../data/menu";
-import type DataTab from "../../data/tab";
+import type DataMenu from "../../../data/menu";
+import type DataTab from "../../../data/tab";
 
 function TabMenu(
   { closeFunction, dataMenu, updateData, editing, dataTab }:

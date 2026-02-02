@@ -1,5 +1,5 @@
 import CONSTANTS from "../constants";
-import type DataTile from "./data/tile";
+import type DataTile from "../data/tile";
 
 function Tile({ dataTile }: { dataTile: DataTile }) {
   return (
