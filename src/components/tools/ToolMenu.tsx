@@ -1,7 +1,11 @@
 import { useState } from "react";
 import ActualMenu from "./ActualMenu";
+import type Data from "../../data/data";
 
-function ToolMenu({ editingActivated, setEditingActivated }: { editingActivated: boolean, setEditingActivated: (active: boolean) => void }) {
+function ToolMenu(
+  { editingActivated, setEditingActivated, data }:
+  { editingActivated: boolean, setEditingActivated: (active: boolean) => void, data: Data }
+) {
   const [showActualMenu, setShowActualMenu] = useState<boolean>(false);
 
   if (showActualMenu) return (
@@ -9,6 +13,7 @@ function ToolMenu({ editingActivated, setEditingActivated }: { editingActivated:
       closeFunction={ () => { setShowActualMenu(false) } }
       editingActivated={ editingActivated }
       setEditingActivated={ setEditingActivated }
+      data={ data }
     ></ActualMenu>
   );
 

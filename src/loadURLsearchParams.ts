@@ -1,14 +1,14 @@
-import type { T_SEARCH_PARAMS } from "./types";
+import type { T_URL_SEARCH_PARAMS } from "./types";
 
 function verifyChars(textToVerify: string): boolean {
-    return /^[A-Za-z/]+$/.test(textToVerify);
+    return /^[A-Za-z]+$/.test(textToVerify);
 }
 
 /**
  * @returns finished parameters and a list with error messages
  */
-export default function loadURLsearchParams(): [T_SEARCH_PARAMS, string[]] {
-    let finished_params: T_SEARCH_PARAMS = {
+export default function loadURLsearchParams(): [T_URL_SEARCH_PARAMS, string[]] {
+    let finished_params: T_URL_SEARCH_PARAMS = {
         from: "local",
         src: "",
         useLS: true,
@@ -46,7 +46,9 @@ export default function loadURLsearchParams(): [T_SEARCH_PARAMS, string[]] {
 
                     break;
 
-                case "src":
+                case "src": // Only if <from> is <site>
+                    if (finished_params.from === "site") finished_params[param] = value;
+
                     break;
 
                 case "useLS":
@@ -60,8 +62,8 @@ export default function loadURLsearchParams(): [T_SEARCH_PARAMS, string[]] {
 
                     break;
                 
-                case "encrypted":
-                    if (value === "true") {
+                case "encrypted": // Only if <from> is <site>
+                    if (finished_params.from === "site" && value === "true") {
                         finished_params[param] = true;
                     } else if (value === "false") {
                         finished_params[param] = false;
@@ -71,8 +73,8 @@ export default function loadURLsearchParams(): [T_SEARCH_PARAMS, string[]] {
 
                     break;
                 
-                case "savePswd":
-                    if (value === "true") {
+                case "savePswd": // Only if <encrypted> is <true>
+                    if (finished_params.encrypted && value === "true") {
                         finished_params[param] = true;
                     } else if (value === "false") {
                         finished_params[param] = false;

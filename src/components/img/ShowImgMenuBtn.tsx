@@ -1,16 +1,16 @@
 import { useState } from "react";
 import ImgMenu from "./ImgMenu";
-import type ImageHandler from "../../imgHandler";
+import type Data from "../../data/data";
 
 function ShowImgMenuBtn(
-  { imgHandler, selectedImgID, selectImg }:
-  { imgHandler: ImageHandler,  selectedImgID: string, selectImg: (id: string) => void }
+  { data, selectedImgID, selectImg }:
+  { data: Data,  selectedImgID: string, selectImg: (id: string) => void }
 ) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
 
   if (showMenu) return (
     <ImgMenu
-      imgHandler={ imgHandler }
+      data={ data }
       closeFunction={ () => setShowMenu(false) }
       selectImg={ selectImg }
       selectedImgID={ selectedImgID }
@@ -19,7 +19,8 @@ function ShowImgMenuBtn(
 
   return (
     <button onClick={ () => setShowMenu(true) }>
-      { <img src={ imgHandler.getBase64(selectedImgID) }></img> }
+      { /** @ts-ignore (src can be null) */ }
+      { <img src={ data.getBase64(selectedImgID) }></img> }
       <div>select/add image</div>
     </button>
   );

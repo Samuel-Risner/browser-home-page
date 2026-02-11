@@ -4,11 +4,11 @@ import Tab from "./Tab";
 import View from "./View";
 import ToolMenu from "./tools/ToolMenu";
 import AddTabBtn from "./edit/tab/AddTabBtn";
-import type ImageHandler from "../imgHandler";
+import type Data from "../data/data";
 
 function Menu(
-  { dataMenu, showToolMenu, unsavedChanges, updateData, imgHandler }:
-  { dataMenu: DataMenu, showToolMenu: boolean, unsavedChanges: boolean, updateData: () => void, imgHandler: ImageHandler }
+  { dataMenu, showToolMenu, unsavedChanges, updateData, data }:
+  { dataMenu: DataMenu, showToolMenu: boolean, unsavedChanges: boolean, updateData: () => void, data: Data }
 ) {
   const [activeTabIndex, setActiveTabIndex] = useState<number | null>(dataMenu.getTabs().length > 0? 0 : null);
   const [editingActivated, setEditingActivated] = useState<boolean>(false);
@@ -37,6 +37,7 @@ function Menu(
         { !showToolMenu? <></> : <ToolMenu
           editingActivated={ editingActivated }
           setEditingActivated={ setEditingActivated }
+          data={ data }
         ></ToolMenu> }
       </div>
 
@@ -44,7 +45,7 @@ function Menu(
         dataTab={ dataMenu.getTabs()[activeTabIndex] }
         editingActivated={ editingActivated }
         updateData={ updateData }
-        imgHandler={ imgHandler }
+        data={ data }
       ></View> }
     </>
   );

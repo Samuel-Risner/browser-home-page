@@ -2,11 +2,11 @@ import { useState } from "react";
 import AddTileMenu from "./AddTileMenu";
 import type DataRow from "../../../data/row";
 import CONSTANTS from "../../../constants";
-import type ImageHandler from "../../../imgHandler";
+import type Data from "../../../data/data";
 
 function AddTileBtn(
-  { dataRow, updateData, imgHandler }:
-  { dataRow: DataRow, updateData: () => void, imgHandler: ImageHandler }
+  { dataRow, updateData, data }:
+  { dataRow: DataRow, updateData: () => void, data: Data }
 ) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
 
@@ -15,7 +15,7 @@ function AddTileBtn(
       closeFunction={ () => setShowMenu(false) }
       dataRow={ dataRow }
       updateData={ updateData }
-      imgHandler={ imgHandler }
+      data={ data }
     ></AddTileMenu>
   );
 

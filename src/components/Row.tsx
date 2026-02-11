@@ -1,13 +1,13 @@
 import CONSTANTS from "../constants";
+import type Data from "../data/data";
 import type DataRow from "../data/row";
-import type ImageHandler from "../imgHandler";
 import EditRowBtn from "./edit/row/EditRowBtn";
 import AddTileBtn from "./edit/tile/AddTileBtn";
 import Tile from "./Tile";
 
 function Row(
-  { dataRow, editingActivated, updateData, imgHandler }:
-  { dataRow: DataRow, editingActivated: boolean, updateData: () => void, imgHandler: ImageHandler }
+  { dataRow, editingActivated, updateData, data }:
+  { dataRow: DataRow, editingActivated: boolean, updateData: () => void, data: Data }
 ) {
   return (
     <div className="flex flex-row gap-2">
@@ -30,7 +30,7 @@ function Row(
       { !editingActivated? <></> : <AddTileBtn
         dataRow={ dataRow }
         updateData={ updateData }
-        imgHandler={ imgHandler }
+        data={ data }
       ></AddTileBtn>}
     </div>
   );

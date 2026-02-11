@@ -34,4 +34,11 @@ export default class DataTab {
     getRows() {
         return this.rows;
     }
+
+    getJSON(): T_TAB {
+        return [
+            this.name,
+            this.rows.map(r => r.getJSON())
+        ];
+    }
 }

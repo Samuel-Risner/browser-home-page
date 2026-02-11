@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import Menu from "./components/Menu";
-import ImageHandler from "./imgHandler";
-import loadURLparams from "./loadURLsearchParams";
 import Data from "./data/data";
+import loadURLsearchParams from "./loadURLsearchParams";
+import type { T_DATA, T_URL_SEARCH_PARAMS } from "./types";
 
 /**
  * Modes:
@@ -14,29 +14,35 @@ import Data from "./data/data";
 function App() {
   const [updateValue, updateFunction] = useState<boolean>(true);
   const [data, setData] = useState<Data | null>(null);
-  const [imgHandler, setImgHandler] = useState<ImageHandler | null>(null);
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
 
-  loadURLparams();
+  const urlSearchParams: T_URL_SEARCH_PARAMS = loadURLsearchParams()[0];
   
   const updateData = () => {
     updateFunction(!updateValue);
     setUnsavedChanges(true);
   }
 
-  useEffect(() => {
-    fetch("/data.json")
-      .then((res) => res.json())
-      .then((data) => setData(new Data(data)));
-  }, []);
+  if (urlSearchParams.from === "site") {
+    useEffect(() => {
+      fetch("/data.json")
+        .then((res) => res.json())
+        .then((data: T_DATA) => setData(new Data(data, urlSearchParams)));
+    }, []);
 
-  useEffect(() => {
-    fetch("/imgs.json")
-      .then((res) => res.json())
-      .then((data) => setImgHandler(new ImageHandler(data)));
-  }, []);
+    // useEffect(() => {
+    //   fetch("/imgs.json")
+    //     .then((res) => res.json())
+    //     .then((data) => setImgHandler(new ImageHandler(data)));
+    // }, []);
+  
+  } else if (urlSearchParams.from === "local") {
+    setData(new Data([[], [0, []]], urlSearchParams));
+    // setImgHandler(new ImageHandler([0, []]))
+  }
 
-  if (data === null || imgHandler === null) return <>Loading...</>;
+  // if (data === null || imgHandler === null) return <>Loading...</>;
+  if (data === null) return <>Loading...</>;
 
   return (
     <>
@@ -46,7 +52,7 @@ function App() {
         showToolMenu={ index === 0 }
         unsavedChanges={ unsavedChanges }
         updateData={ updateData }
-        imgHandler={ imgHandler }
+        data={ data }
       ></Menu>) }
     </>
   );

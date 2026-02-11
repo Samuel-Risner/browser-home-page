@@ -4,11 +4,11 @@ import CloseMenuBackdrop from "../../misc/CloseMenuBackdrop";
 import type DataRow from "../../../data/row";
 import ToggleBtn from "../../misc/ToggleBtn";
 import ShowImgMenuBtn from "../../img/ShowImgMenuBtn";
-import type ImageHandler from "../../../imgHandler";
+import type Data from "../../../data/data";
 
 function AddTileMenu(
-  { closeFunction, dataRow, updateData, imgHandler }:
-  { closeFunction: () => void, dataRow: DataRow, updateData: () => void, imgHandler: ImageHandler }
+  { closeFunction, dataRow, updateData, data }:
+  { closeFunction: () => void, dataRow: DataRow, updateData: () => void, data: Data }
 ) {
   const [newTileName, setNewTileName] = useState<string>("");
   const [newTileType, setNewTileType] = useState<boolean>(true);
@@ -36,7 +36,7 @@ function AddTileMenu(
         <input value={ newTileLinkORtextToCopy } onChange={ (e) => setNewTileLinkORtextToCopy(e.target.value) } type="text" className={ CONSTANTS.TWCSS.input }></input>
 
         <ShowImgMenuBtn
-          imgHandler={ imgHandler }
+          data={ data }
           selectImg={ setNewTileImgID }
           selectedImgID={ newTileImgID }
         ></ShowImgMenuBtn>

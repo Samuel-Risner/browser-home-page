@@ -1,11 +1,11 @@
+import type Data from "../data/data";
 import type DataTab from "../data/tab";
-import type ImageHandler from "../imgHandler";
 import AddRowBtn from "./edit/row/AddRowBtn";
 import Row from "./Row";
 
 function View(
-  { dataTab, editingActivated, updateData, imgHandler }:
-  { dataTab: DataTab, editingActivated: boolean, updateData: () => void, imgHandler: ImageHandler }
+  { dataTab, editingActivated, updateData, data }:
+  { dataTab: DataTab, editingActivated: boolean, updateData: () => void, data: Data }
 ) {
   return (
     <div className="flex flex-col gap-2 p-2">
@@ -14,7 +14,7 @@ function View(
         dataRow={ dataRow }
         editingActivated={ editingActivated }
         updateData={ updateData }
-        imgHandler={ imgHandler }
+        data={ data }
       ></Row>)}
 
       { !editingActivated? <></> : <AddRowBtn

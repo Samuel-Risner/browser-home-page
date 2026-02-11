@@ -21,4 +21,13 @@ export default class DataTile {
     getName() {
         return this.name;
     }
+
+    getJSON(): T_TILE {
+        return [
+            this.name,
+            this.linkORcopy,
+            this.linkORtextToCopy,
+            this.imgID
+        ];
+    }
 }

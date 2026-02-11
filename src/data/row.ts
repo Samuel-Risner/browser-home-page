@@ -34,4 +34,11 @@ export default class DataRow {
     getTiles() {
         return this.tiles;
     }
+
+    getJSON(): T_ROW {
+        return [
+            this.name,
+            this.tiles.map(t => t.getJSON())
+        ];
+    }
 }

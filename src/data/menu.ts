@@ -26,4 +26,11 @@ export default class DataMenu {
     getTabs() {
         return this.tabs;
     }
+
+    getJSON(): T_MENU {
+        return [
+            this.name,
+            this.tabs.map(t => t.getJSON())
+        ];
+    }
 }

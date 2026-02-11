@@ -1,8 +1,8 @@
-import React, { useState } from "react";
-import type ImageHandler from "../../imgHandler";
+import React from "react";
 import ImgDisplay from "./ImgDisplay";
 import CloseMenuBackdrop from "../misc/CloseMenuBackdrop";
 import CONSTANTS from "../../constants";
+import type Data from "../../data/data";
 
 function fileToBase64 (file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -16,8 +16,8 @@ function fileToBase64 (file: File): Promise<string> {
 }
 
 function ImgMenu(
-  { imgHandler, closeFunction, selectedImgID, selectImg }:
-  { imgHandler: ImageHandler, closeFunction: () => void, selectedImgID: string, selectImg: (id: string) => void }
+  { data, closeFunction, selectedImgID, selectImg }:
+  { data: Data, closeFunction: () => void, selectedImgID: string, selectImg: (id: string) => void }
 ) {
   const selectFunction = (id: string) => {
     if (selectedImgID === id) {
@@ -34,7 +34,7 @@ function ImgMenu(
     if (!file.type.startsWith("image/")) return;
 
     const base64 = await fileToBase64(file);
-    selectImg(imgHandler.addImg(base64));
+    selectImg(data.addImg(base64));
   }
 
   return (
@@ -53,7 +53,7 @@ function ImgMenu(
           <input type="file" accept="image/*" onChange={ handleFileInput }></input>
         </div>
 
-        { imgHandler.getImgDB().map(d => <ImgDisplay
+        { data.getImgDB().map(d => <ImgDisplay
           imgBase64data={ d[1] }
           selectFunction={ () => selectFunction(d[0]) }
           selected={ d[0] === selectedImgID }
