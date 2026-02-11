@@ -5,13 +5,6 @@ import loadURLsearchParams from "./helpers/loadURLsearchParams";
 import type { T_DATA } from "./types";
 import ErrorContainer from "./components/error/ErrorContainer";
 
-/**
- * Modes:
- * ?from=site ?src=1 ?useLS=true ?encrypted=true ?savePswd=true
- * 
- * ?from=local ?useLS=true
- */
-
 function App() {
   const [urlSearchParams, errors] = loadURLsearchParams();
 
