@@ -1,3 +1,4 @@
+import CONSTANTS from "../constants";
 import type { T_DATA, T_IMG, T_MENU, T_URL_SEARCH_PARAMS } from "../types";
 import DataMenu from "./menu";
 
@@ -21,6 +22,11 @@ export default class Data {
         this.imgIDcount = data[1][0];
 
         this.urlSearchParams = urlSearchParams;
+    }
+
+    save() {
+        if (!this.urlSearchParams.useLS) return;
+        if (this.urlSearchParams.from === "local") localStorage.setItem(CONSTANTS.LS.DATA_KEY_LOCAL, this.getJSON());
     }
 
     /**

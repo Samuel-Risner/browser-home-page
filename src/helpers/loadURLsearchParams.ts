@@ -1,7 +1,7 @@
-import type { T_URL_SEARCH_PARAMS } from "./types";
+import type { T_URL_SEARCH_PARAMS } from "../types";
 
 function verifyChars(textToVerify: string): boolean {
-    return /^[A-Za-z]+$/.test(textToVerify);
+    return /^[A-Za-z0-9.]+$/.test(textToVerify);
 }
 
 /**

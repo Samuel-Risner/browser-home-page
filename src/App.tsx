@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Menu from "./components/Menu";
 import Data from "./data/data";
-import loadURLsearchParams from "./loadURLsearchParams";
+import loadURLsearchParams from "./helpers/loadURLsearchParams";
 import type { T_DATA, T_URL_SEARCH_PARAMS } from "./types";
 
 /**
@@ -18,20 +18,26 @@ function App() {
   const [data, setData] = useState<Data | null>(urlSearchParams.from === "local"? new Data([[["default menu", [["default tab", []]]]], [0, []]], urlSearchParams) : null);
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
 
-  const updateData = () => {
-    updateFunction(!updateValue);
-    setUnsavedChanges(true);
-  }
-
   if (urlSearchParams.from === "site") {
     useEffect(() => {
-      fetch("/data.json")
-        .then((res) => res.json())
-        .then((data: T_DATA) => setData(new Data(data, urlSearchParams)));
+      fetch(`/${urlSearchParams.src}`)
+      .then((res) => res.json())
+      .then((data: T_DATA) => setData(new Data(data, urlSearchParams)));
     }, []);
   }
-
+  
   if (data === null) return <>Loading...</>;
+
+  data.save();
+  
+  const updateData = () => {
+    data.save();
+    updateFunction(!updateValue);
+
+    if (urlSearchParams.from !== "site") return;
+    
+    setUnsavedChanges(true);
+  }
 
   return (
     <>
