@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Menu from "./components/Menu";
 import Data from "./data/data";
 import loadURLsearchParams from "./helpers/loadURLsearchParams";
-import type { T_DATA, T_URL_SEARCH_PARAMS } from "./types";
+import type { T_DATA } from "./types";
 import ErrorContainer from "./components/error/ErrorContainer";
 
 /**
