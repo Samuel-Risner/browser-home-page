@@ -12,12 +12,12 @@ import type { T_DATA, T_URL_SEARCH_PARAMS } from "./types";
  */
 
 function App() {
+  const urlSearchParams: T_URL_SEARCH_PARAMS = loadURLsearchParams()[0];
+
   const [updateValue, updateFunction] = useState<boolean>(true);
-  const [data, setData] = useState<Data | null>(null);
+  const [data, setData] = useState<Data | null>(urlSearchParams.from === "local"? new Data([[["default menu", [["default tab", []]]]], [0, []]], urlSearchParams) : null);
   const [unsavedChanges, setUnsavedChanges] = useState<boolean>(false);
 
-  const urlSearchParams: T_URL_SEARCH_PARAMS = loadURLsearchParams()[0];
-  
   const updateData = () => {
     updateFunction(!updateValue);
     setUnsavedChanges(true);
@@ -29,19 +29,8 @@ function App() {
         .then((res) => res.json())
         .then((data: T_DATA) => setData(new Data(data, urlSearchParams)));
     }, []);
-
-    // useEffect(() => {
-    //   fetch("/imgs.json")
-    //     .then((res) => res.json())
-    //     .then((data) => setImgHandler(new ImageHandler(data)));
-    // }, []);
-  
-  } else if (urlSearchParams.from === "local") {
-    setData(new Data([[], [0, []]], urlSearchParams));
-    // setImgHandler(new ImageHandler([0, []]))
   }
 
-  // if (data === null || imgHandler === null) return <>Loading...</>;
   if (data === null) return <>Loading...</>;
 
   return (
