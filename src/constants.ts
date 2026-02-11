@@ -12,6 +12,10 @@ const CONSTANTS = {
     },
     DEFAULT_VALUES: {
         DATA: ([[["default menu", [["default tab", []]]]], [0, []]] as T_DATA)
+    },
+    PASSWORD: {
+        MIN_LENGTH: 12,
+        MAX_LENGTH: 64
     }
 }
 

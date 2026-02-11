@@ -1,3 +1,5 @@
+import type { T_ENCRYPTED_DATA } from "../types";
+
 const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
@@ -65,8 +67,8 @@ export async function encrypt(password: string, plaintextData: string): Promise<
     ]);
 }
 
-export async function decrypt(password: string, cipherText: string): Promise<string> {
-    const [encryptedData, iv, salt] = JSON.parse(cipherText) as [string, string, string];
+export async function decrypt(password: string, encryptedDataJSON: T_ENCRYPTED_DATA): Promise<string> {
+    const [encryptedData, iv, salt] = encryptedDataJSON;
     
     const key = await deriveKey(
         password,

@@ -51,3 +51,9 @@ export type T_URL_SEARCH_PARAMS = {
     encrypted: boolean,
     savePswd: boolean
 };
+
+export type T_ENCRYPTED_DATA = [
+    string,
+    string,
+    string
+];
