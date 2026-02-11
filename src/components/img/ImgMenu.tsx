@@ -57,6 +57,10 @@ function ImgMenu(
           imgBase64data={ d[1] }
           selectFunction={ () => selectFunction(d[0]) }
           selected={ d[0] === selectedImgID }
+          deleteFunction={ () => {
+            data.deleteImg(d[0]);
+            if (d[0] === selectedImgID) selectFunction(d[0]);
+          }}
           key={ d[0] }
         ></ImgDisplay>) }
       </div>

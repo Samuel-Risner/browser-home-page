@@ -40,6 +40,15 @@ export default class Data {
         return String(id);
     }
 
+    deleteImg(id: string) {
+        for (let i = 0; i < this.imgDB.length; i++) {
+            if (this.imgDB[i][0] === id) {
+                this.imgDB.splice(i, 1);
+                return;
+            }
+        }
+    }
+
     //
     // - Getters
     //
