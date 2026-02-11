@@ -3,6 +3,7 @@ import Menu from "./components/Menu";
 import Data from "./data/data";
 import loadURLsearchParams from "./helpers/loadURLsearchParams";
 import type { T_DATA, T_URL_SEARCH_PARAMS } from "./types";
+import ErrorContainer from "./components/error/ErrorContainer";
 
 /**
  * Modes:
@@ -12,7 +13,7 @@ import type { T_DATA, T_URL_SEARCH_PARAMS } from "./types";
  */
 
 function App() {
-  const urlSearchParams: T_URL_SEARCH_PARAMS = loadURLsearchParams()[0];
+  const [urlSearchParams, errors] = loadURLsearchParams();
 
   const [updateValue, updateFunction] = useState<boolean>(true);
   const [data, setData] = useState<Data | null>(urlSearchParams.from === "local"? new Data([[["default menu", [["default tab", []]]]], [0, []]], urlSearchParams) : null);
@@ -41,6 +42,7 @@ function App() {
 
   return (
     <>
+      <ErrorContainer errorsToHandle={ errors }></ErrorContainer>
       { data.getMenus().map((dataMenu, index) => <Menu
         key={ index }
         dataMenu={ dataMenu }
