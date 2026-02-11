@@ -1,4 +1,5 @@
 import tw from "./tw";
+import type { T_DATA } from "./types";
 
 const CONSTANTS = {
     TWCSS: {
@@ -8,6 +9,9 @@ const CONSTANTS = {
     },
     LS: {
         DATA_KEY_LOCAL: "__DATA_LOCAL__"
+    },
+    DEFAULT_VALUES: {
+        DATA: ([[["default menu", [["default tab", []]]]], [0, []]] as T_DATA)
     }
 }
 
