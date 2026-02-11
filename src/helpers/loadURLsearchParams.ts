@@ -11,7 +11,7 @@ export default function loadURLsearchParams(): [T_URL_SEARCH_PARAMS, string[]] {
     let finished_params: T_URL_SEARCH_PARAMS = {
         from: "local",
         src: "",
-        useLS: true,
+        useLS: false,
         encrypted: false,
         savePswd: false
     }
@@ -47,39 +47,55 @@ export default function loadURLsearchParams(): [T_URL_SEARCH_PARAMS, string[]] {
                     break;
 
                 case "src": // Only if <from> is <site>
-                    if (finished_params.from === "site") finished_params[param] = value;
+                    if (finished_params.from === "site") {
+                        finished_params[param] = value;
+                    } else {
+                        errors.push("URL search parameter <src> can only be used if the parameter <from> is equal to <site>");
+                    }
 
                     break;
 
-                case "useLS":
-                    if (value === "true") {
-                        finished_params[param] = true;
-                    } else if (value === "false") {
-                        finished_params[param] = false;
+                case "useLS": // Only if <from> is <local>
+                    if (finished_params.from === "local") {
+                        if (value === "true") {
+                            finished_params[param] = true;
+                        } else if (value === "false") {
+                            finished_params[param] = false;
+                        } else {
+                            errors.push("URL search parameter <useLS> should be either <true> or <false>");
+                        }
                     } else {
-                        errors.push("URL search parameter <useLS> should be either <true> or <false>");
+                        errors.push("URL search parameter <useLS> can only be used if the parameter <from> is equal to <local>");
                     }
 
                     break;
                 
                 case "encrypted": // Only if <from> is <site>
-                    if (finished_params.from === "site" && value === "true") {
-                        finished_params[param] = true;
-                    } else if (value === "false") {
-                        finished_params[param] = false;
+                    if (finished_params.from === "site") {
+                        if (value === "true") {
+                            finished_params[param] = true;
+                        } else if (value === "false") {
+                            finished_params[param] = false;
+                        } else {
+                            errors.push("URL search parameter <encrypted> should be either <true> or <false>");
+                        }
                     } else {
-                        errors.push("URL search parameter <encrypted> should be either <true> or <false>");
+                        errors.push("URL search parameter <encrypted> can only be used if the parameter <from> is equal to <site>");
                     }
 
                     break;
                 
                 case "savePswd": // Only if <encrypted> is <true>
-                    if (finished_params.encrypted && value === "true") {
-                        finished_params[param] = true;
-                    } else if (value === "false") {
-                        finished_params[param] = false;
+                    if (finished_params.encrypted) {
+                        if (value === "true") {
+                            finished_params[param] = true;
+                        } else if (value === "false") {
+                            finished_params[param] = false;
+                        } else {
+                            errors.push("URL search parameter <savePswd> should be either <true> or <false>");
+                        }
                     } else {
-                        errors.push("URL search parameter <savePswd> should be either <true> or <false>");
+                        errors.push("URL search parameter <savePswd> can only be used if the parameter <encrypted> is equal to <true>");
                     }
 
                     break;
