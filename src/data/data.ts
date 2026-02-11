@@ -5,17 +5,35 @@ import DataMenu from "./menu";
 export default class Data {
 
     private menus: DataMenu[] = [];
-    
+
     /**
      * - img ID
      * - img base 64 encoded
     */
-   private imgDB: T_IMG[] = [];
-   private imgIDcount: number;
+    private imgDB: T_IMG[] = [];
+    private imgIDcount: number;
 
-   private urlSearchParams: T_URL_SEARCH_PARAMS;
+    private urlSearchParams: T_URL_SEARCH_PARAMS;
    
+    /**
+     * 
+     * @param data <mull> will load data from local storage (if so specified in <urlSearchParams>) or will use the default value
+     * @param urlSearchParams 
+     */
     constructor(data: T_DATA, urlSearchParams: T_URL_SEARCH_PARAMS) {
+        if (urlSearchParams.from === "local") {
+            if (urlSearchParams.useLS) {
+                const LSdata = localStorage.getItem(CONSTANTS.LS.DATA_KEY_LOCAL);
+                if (LSdata === null) {
+                    data = CONSTANTS.DEFAULT_VALUES.DATA;
+                } else {
+                    data = JSON.parse(LSdata);
+                }
+            } else {
+                data = CONSTANTS.DEFAULT_VALUES.DATA;
+            }
+        }
+
         data[0].forEach((d: T_MENU) => this.menus.push(new DataMenu(d)));
 
         this.imgDB = data[1][1];
@@ -26,7 +44,9 @@ export default class Data {
 
     save() {
         if (!this.urlSearchParams.useLS) return;
-        if (this.urlSearchParams.from === "local") localStorage.setItem(CONSTANTS.LS.DATA_KEY_LOCAL, this.getJSON());
+        if (this.urlSearchParams.from !== "local") return;
+
+        localStorage.setItem(CONSTANTS.LS.DATA_KEY_LOCAL, this.getJSON());
     }
 
     /**
