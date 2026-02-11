@@ -1,5 +1,5 @@
 import tw from "./tw";
-import type { T_DATA, T_URL_SEARCH_PARAMS } from "./types";
+import type { T_COLOR_SCHEME, T_DATA, T_URL_SEARCH_PARAMS } from "./types";
 
 const DEFAULT_URL_SEARCH_PARAMS: T_URL_SEARCH_PARAMS = {
     from: "local",
@@ -19,12 +19,17 @@ const CONSTANTS = {
         DATA_KEY_LOCAL: "__DATA_LOCAL__"
     },
     DEFAULT_VALUES: {
-        DATA: ([[["default menu", [["default tab", []]]]], [0, []]] as T_DATA),
+        DATA: [[["default menu", [["default tab", []]]]], [0, []]] as T_DATA,
         URL_SEARCH_PARAMS: DEFAULT_URL_SEARCH_PARAMS
     },
     PASSWORD: {
         MIN_LENGTH: 12,
         MAX_LENGTH: 64
+    },
+    COLOR_SCHEME: {
+        DEFAULT: {
+            bg: tw("bg-white")
+        } as T_COLOR_SCHEME
     }
 }
 

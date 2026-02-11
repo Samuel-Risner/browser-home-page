@@ -57,3 +57,17 @@ export type T_ENCRYPTED_DATA = [
     string,
     string
 ];
+
+export type T_COLOR_SCHEME = {
+    bg: string,
+    menu: string,
+    tab: string,
+    rowName: string,
+    row: string,
+    tile: string,
+    menu: string,
+    button: string,
+    editButton: string,
+    toolsButton: string,
+    input: string
+}

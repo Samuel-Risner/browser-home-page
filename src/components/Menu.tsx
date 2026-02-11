@@ -1,14 +1,14 @@
 import { useState } from "react";
+import type Data from "../data/data";
 import type DataMenu from "../data/menu";
 import Tab from "./Tab";
 import View from "./View";
 import ToolMenu from "./tools/ToolMenu";
 import AddTabBtn from "./edit/tab/AddTabBtn";
-import type Data from "../data/data";
 
 function Menu(
-  { dataMenu, showToolMenu, unsavedChanges, updateData, data }:
-  { dataMenu: DataMenu, showToolMenu: boolean, unsavedChanges: boolean, updateData: () => void, data: Data }
+  { data, dataMenu, showToolMenuButton, indicateUnsavedChanges, updateDataFunction }:
+  { data: Data, dataMenu: DataMenu, showToolMenuButton: boolean, indicateUnsavedChanges: boolean, updateDataFunction: () => void }
 ) {
   const [activeTabIndex, setActiveTabIndex] = useState<number | null>(dataMenu.getTabs().length > 0? 0 : null);
   const [editingActivated, setEditingActivated] = useState<boolean>(false);
@@ -23,18 +23,18 @@ function Menu(
             active={ index === activeTabIndex }
             activate={ () => {setActiveTabIndex(index) } }
             editingActivated={ editingActivated }
-            updateData={ updateData }
+            updateData={ updateDataFunction }
           ></Tab>)}
 
           { !editingActivated? <></> : <AddTabBtn
             dataMenu={ dataMenu }
-            updateData={ updateData }
+            updateData={ updateDataFunction }
           ></AddTabBtn>}
         </div>
 
-        { !unsavedChanges? <></> : <div title="unsaved changes" className="w-4 h-4 m-auto bg-red-500 rounded-full"></div> }
+        { !indicateUnsavedChanges? <></> : <div title="unsaved changes" className="w-4 h-4 m-auto bg-red-500 rounded-full"></div> }
 
-        { !showToolMenu? <></> : <ToolMenu
+        { !showToolMenuButton? <></> : <ToolMenu
           editingActivated={ editingActivated }
           setEditingActivated={ setEditingActivated }
           data={ data }
@@ -44,7 +44,7 @@ function Menu(
       { activeTabIndex === null ? <></> : <View
         dataTab={ dataMenu.getTabs()[activeTabIndex] }
         editingActivated={ editingActivated }
-        updateData={ updateData }
+        updateData={ updateDataFunction }
         data={ data }
       ></View> }
     </>
