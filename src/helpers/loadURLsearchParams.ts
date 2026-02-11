@@ -1,3 +1,4 @@
+import CONSTANTS from "../constants";
 import type { T_URL_SEARCH_PARAMS } from "../types";
 
 function verifyChars(textToVerify: string): boolean {
@@ -8,13 +9,7 @@ function verifyChars(textToVerify: string): boolean {
  * @returns finished parameters and a list with error messages
  */
 export default function loadURLsearchParams(): [T_URL_SEARCH_PARAMS, string[]] {
-    let finished_params: T_URL_SEARCH_PARAMS = {
-        from: "local",
-        src: "",
-        useLS: false,
-        encrypted: false,
-        savePswd: false
-    }
+    let finished_params: T_URL_SEARCH_PARAMS = CONSTANTS.DEFAULT_VALUES.URL_SEARCH_PARAMS;
 
     let errors: string[] = [];
     let invalidParams: number = 0;

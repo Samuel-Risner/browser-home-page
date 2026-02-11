@@ -1,5 +1,13 @@
 import tw from "./tw";
-import type { T_DATA } from "./types";
+import type { T_DATA, T_URL_SEARCH_PARAMS } from "./types";
+
+const DEFAULT_URL_SEARCH_PARAMS: T_URL_SEARCH_PARAMS = {
+    from: "local",
+    src: "",
+    useLS: false,
+    encrypted: false,
+    savePswd: false
+};
 
 const CONSTANTS = {
     TWCSS: {
@@ -11,7 +19,8 @@ const CONSTANTS = {
         DATA_KEY_LOCAL: "__DATA_LOCAL__"
     },
     DEFAULT_VALUES: {
-        DATA: ([[["default menu", [["default tab", []]]]], [0, []]] as T_DATA)
+        DATA: ([[["default menu", [["default tab", []]]]], [0, []]] as T_DATA),
+        URL_SEARCH_PARAMS: DEFAULT_URL_SEARCH_PARAMS
     },
     PASSWORD: {
         MIN_LENGTH: 12,
